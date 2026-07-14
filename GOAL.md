@@ -29,8 +29,7 @@ A free, public, beautiful web tool over the WSDOT Standard Specifications for Ro
 
 **Phase 0 is done and validated — do not redo it.**
 
-- `pipeline/parse_specs.py` parses a M 41-10 PDF into structured sections. It recovers **2,235 of 2,235** sections in the 2026 edition with zero false positives. It solves three non-obvious problems (running headers that reprint section headings, Division 9 table cells that look like headings, and headings InDesign merged into the previous paragraph). Read the docstring before touching it.
-- `pipeline/parse_any_edition.py` parses **any** edition with no TOC at all (only 6 of 17 have a usable one). It learns each book's typography instead — read its docstring before touching it; the traps it survives are not guessable.
+- `pipeline/parse_any_edition.py` is the parser. It handles **all 17 editions** using no table of contents at all (only 6 of 17 have a usable one), by inferring each book's typography. Read its docstring before touching it — the traps it survives are not guessable from the code, and an earlier TOC-anchored parser that worked beautifully on 2026 failed on two-thirds of the archive.
 - `pipeline/diff_editions.py` diffs any two parsed editions. `pipeline/build_history.py` assembles `pipeline/history.json` — every section's timeline across 26 years.
 - All 17 PDFs (2000-2026) are in `corpus/` (gitignored); all 17 parses are in `pipeline/out/`.
 - Run with `uv run --with pymupdf python3 pipeline/<script>.py ...`.

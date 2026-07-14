@@ -69,11 +69,6 @@ Everything below was verified against the real documents.
 
 **The corpus is a best case.** `SS2026.pdf` — 1,243 pages, 8.9 MB, born-digital (Adobe InDesign), clean text layer on every page, plus an **embedded 2,265-entry table of contents** with four levels of hierarchy and page anchors. 3.5M characters across **2,235 numbered sections**; 15,561 "shall" statements. No copyright notice anywhere in the document; it is a Washington State publication and WSDOT invites redistribution.
 
-**The parser is written and recovers 2,235 / 2,235 sections** (`pipeline/parse_specs.py`), zero false positives. Three non-obvious problems, all solved:
-- The running header reprints the section heading verbatim atop every page — real headings are distinguished only by vertical position (header at y≈12.2; a true heading starts at y≥24.6).
-- Division 9's cross-reference tables contain heading-lookalike cells — rejected by anchoring every candidate to its TOC page.
-- InDesign sometimes merges a heading into the previous section's closing paragraph — so headings are detected **per line, not per block** (a heading is a line that is *exactly* a section number), which also ignores inline cross-references.
-
 **"Vacant" sections are real data.** 124 sections are titled `Vacant` — WSDOT's marker for a struck or reserved section number. A draft citing one is exactly what the scanner should flag.
 
 **Amendments don't exist — editions do.** WSDOT publishes a full new edition annually rather than mid-cycle amendment packets. Section numbers are stable, so a diff is exact rather than fuzzy.
@@ -123,8 +118,7 @@ Out of scope for v1: plan-sheet (drawing) analysis, any server-side document int
 
 ```
 pipeline/                  # build-time, run locally; output committed as static JSON
-  parse_specs.py           # DONE — TOC-anchored parser; best on 2024-2026
-  parse_any_edition.py     # DONE — TOC-FREE parser; works on all 17 editions (2000-2026)
+  parse_any_edition.py     # DONE — TOC-free parser; all 17 editions (2000-2026)
   diff_editions.py         # DONE — section-level diff between any two editions
   build_history.py         # DONE — assembles history.json: every section's 26-year timeline
   extract_requirements.py  # TODO — Claude-assisted "shall" extraction + topic tags
