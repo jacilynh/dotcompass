@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history test test-all lint fmt clean
+.PHONY: help corpus parse history app-data test test-all lint fmt clean
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -24,6 +24,9 @@ parse: corpus  ## Parse every edition into pipeline/out/eYYYY.json
 
 history: parse  ## Build pipeline/history.json — every section's 26-year timeline
 	$(PY) pipeline/build_history.py pipeline/out pipeline/history.json
+
+app-data: history  ## Emit the web app's data (app/public/data/) from the pipeline
+	$(PY) pipeline/build_app_data.py pipeline/out pipeline/history.json app/public/data
 
 test:  ## Run the fast unit suite (no PDFs needed)
 	$(PY) -m pytest tests/ -m "not corpus"

@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * One source of truth for the palette. Everything downstream reads these via Tailwind's
+ * `bg-surface`, `text-ink`, etc. To rebrand a fork, change the numbers here and nothing
+ * else. Values are space-separated RGB channels so Tailwind can apply opacity.
+ */
+:root,
+:root[data-theme="light"] {
+  --bg: 247 246 243; /* warm paper */
+  --surface: 255 255 255;
+  --raised: 250 249 246;
+  --border: 226 223 216;
+  --ink: 28 30 33;
+  --muted: 90 94 100;
+  --faint: 140 144 150;
+  --accent: 21 92 122; /* deep teal-blue — reads as official without being WSDOT green */
+  --accent-ink: 255 255 255;
+  --added: 22 122 74;
+  --removed: 176 58 46;
+  --vacated: 166 105 20;
+}
+
+:root[data-theme="dark"] {
+  --bg: 17 19 22;
+  --surface: 25 28 32;
+  --raised: 32 36 41;
+  --border: 47 52 58;
+  --ink: 232 233 235;
+  --muted: 164 169 176;
+  --faint: 120 126 133;
+  --accent: 92 178 214;
+  --accent-ink: 12 20 26;
+  --added: 78 189 138;
+  --removed: 232 122 110;
+  --vacated: 214 168 92;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-bg text-ink font-sans antialiased;
+}
+
+/* A stable focus ring for keyboard users, tuned per theme via the accent variable. */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Specification prose: the reading surface for section text. */
+.prose-spec {
+  @apply font-serif text-[0.975rem] leading-7 text-ink;
+}
+.prose-spec p {
+  @apply mb-3;
+}

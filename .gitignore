@@ -6,3 +6,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+app/public/data/
+app/node_modules/
+app/dist/
+
+# TypeScript build info
+*.tsbuildinfo

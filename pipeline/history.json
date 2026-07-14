@@ -22,7 +22,7 @@
   "1-01": {
    "num": "1-01",
    "division": 1,
-   "title": "Definitions and Terms .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 1-1",
+   "title": "Definitions and Terms",
    "current": true,
    "vacant_now": false,
    "first_seen": 2000,
@@ -31,7 +31,7 @@
     {
      "year": 2000,
      "event": "introduced",
-     "title": "DEFINITIONS AND TERMS .......................................................................... 1-1"
+     "title": "DEFINITIONS AND TERMS"
     },
     {
      "year": 2002,

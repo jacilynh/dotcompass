@@ -55,8 +55,20 @@ class TestTitles:
     def test_strips_contents_dot_leaders(self):
         assert clean_title("Definitions and Terms .  .  .  .  .") == "Definitions and Terms"
 
+    def test_strips_dot_leaders_followed_by_a_page_reference(self):
+        """Some contents lines end with a page number after the leaders, e.g. "... 1-1".
+
+        The tail-anchored version of this regex missed these, and the contamination
+        rode straight through to the app's navigation titles.
+        """
+        assert clean_title("Definitions and Terms . . . . 1-1") == "Definitions and Terms"
+
     def test_leaves_an_ordinary_title_alone(self):
         assert clean_title("Laws to be Observed") == "Laws to be Observed"
+
+    def test_leaves_a_normal_period_alone(self):
+        """Cutting must trigger on a run of leaders, not any single period."""
+        assert clean_title("Sampling, Testing, etc.") == "Sampling, Testing, etc"
 
 
 class TestGapHealing:

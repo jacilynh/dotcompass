@@ -29,7 +29,11 @@ import re
 import sys
 from difflib import SequenceMatcher
 
-DOT_LEADER_TAIL = re.compile(r"[\s.]*(?:\.\s*){3,}$")  # "Definitions and Terms . . . ."
+# A run of dot leaders and everything after it: contents-page formatting that some
+# section titles carry, sometimes with a trailing page reference. "Definitions and
+# Terms . . . . 1-1" -> "Definitions and Terms". No real section title contains a run
+# of spaced dots, so cutting from the first such run is safe.
+DOT_LEADER_RUN = re.compile(r"\s*(?:\.\s*){3,}.*$")
 
 
 def normalize(text):
@@ -37,7 +41,7 @@ def normalize(text):
 
 
 def clean_title(title):
-    return DOT_LEADER_TAIL.sub("", title).strip(" .")
+    return DOT_LEADER_RUN.sub("", title).strip(" .")
 
 
 def load_editions(out_dir):
