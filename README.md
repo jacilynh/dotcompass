@@ -6,6 +6,8 @@ A free, public tool over the **WSDOT Standard Specifications for Road, Bridge, a
 
 **Live:** <https://jacilynh.github.io/wsdot-spec-tool/> · A free tool from Katabatic Engineering.
 
+![The section history for 1-09.7 Mobilization — introduced 2000, revised six times, struck in 2026](docs/screenshots/section-history.png)
+
 ---
 
 ## What it does

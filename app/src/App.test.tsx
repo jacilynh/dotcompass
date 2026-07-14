@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -89,5 +89,19 @@ describe("App", () => {
     expect(within(aside).getByText("Vacated")).toBeInTheDocument();
     expect(within(aside).getByText("Introduced")).toBeInTheDocument();
     expect(within(aside).getByText("2026")).toBeInTheDocument();
+  });
+
+  it("checks a pasted draft and flags a citation of a vacant section", async () => {
+    render(
+      <MemoryRouter initialEntries={["/scan"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    const draft = await screen.findByLabelText(/your draft/i);
+    fireEvent.change(draft, { target: { value: "Mobilization is paid under Section 1-09.7." } });
+
+    // The finding appears with its stale-citation status; nothing was sent anywhere.
+    expect(await screen.findByText(/citing a struck section/i)).toBeInTheDocument();
+    expect(screen.getByText(/never leaves your browser/i)).toBeInTheDocument();
   });
 });
