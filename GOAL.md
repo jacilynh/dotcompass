@@ -10,13 +10,20 @@ Build the WSDOT Standard Specifications tool described in `PLAN.md` in this repo
 
 A free, public, beautiful web tool over the WSDOT Standard Specifications for Road, Bridge, and Municipal Construction (M 41-10), published by Katabatic Engineering. It must be genuinely useful to anyone who reads the spec book, and it doubles as a demonstration of Claude Code to WSDOT engineers who have never seen AI applied to their work. Those engineers are skeptical domain experts whose single fear is that AI makes things up — so **every claim the tool makes must link to the exact section and quoted source text.** Verifiable grounding is the entire trust strategy.
 
-## Five constraints that are not negotiable
+## Six constraints that are not negotiable
 
 1. **Free to every user.** No login, no API key, no install, no payment, no email wall.
 2. **Public, not gated.** Do not add SSO, domain restriction, or any access control. `PLAN.md` explains why (Washington state ethics law plus reach); it is a deliberate decision, not an omission.
 3. **User documents never leave the browser.** The document scanner is 100% client-side. Accept **no** server-side document intake — no uploads, no pasted text POSTed anywhere. The only server is the Q&A Worker, and it receives questions, never documents.
 4. **Runs on locked-down government Windows machines.** Stock Edge/Chrome. No WebGPU, no installs, no multi-GB downloads.
 5. **Every requirement, result, finding, and AI answer cites its section** and links through to the verbatim text. Unofficial-tool disclaimer in the footer and on every scanner result and AI answer.
+6. **The code is part of the product.** This ships open source (MIT) as a teaching artifact — the goal is that engineers at *other* agencies fork it for their own spec books. Strangers will judge both the tool and the idea from the source, so:
+   - **Write tests first.** New behavior arrives with a failing test that names it. `make test` must stay fast and hermetic; the corpus suite runs separately.
+   - **Comments explain *why*, never *what*.** A comment earns its place by recording a constraint the code can't show. Read the docstring of `pipeline/parse_any_edition.py` — that's the standard.
+   - **Report accuracy honestly.** 85% means you write 85%. Silent truncation and unreported caps are bugs.
+   - **`make lint` clean, CI green.** Keep `CONTRIBUTING.md` true as you go.
+
+   There are already **46 passing tests** (35 unit + 11 against the real PDFs) and a clean lint. Do not regress this. The Phase 0 pipeline was tested after the fact; everything you build is test-first.
 
 ## Where things stand
 

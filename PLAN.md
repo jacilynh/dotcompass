@@ -8,7 +8,9 @@
 
 A free, public, beautiful web tool over the **WSDOT Standard Specifications for Road, Bridge, and Municipal Construction (M 41-10)** — genuinely useful to anyone who reads the spec book, and a demonstration of Claude Code's capabilities to colleagues at WSDOT who have never seen AI applied to their work.
 
-Published by **Katabatic Engineering** as a free public resource. The tool is the demo; the business is what comes after it.
+Published by **Katabatic Engineering** as a free public resource, **open source under MIT**. The tool is the demo; the business is what comes after it.
+
+**It is also a teaching artifact.** Nearly every public agency publishes a spec book as a pile of PDFs with no history and no usable search. This repo is meant to be *forked* by people solving that problem for their own agency, so the code is a deliverable in its own right — see "Code quality bar" below. That is a real constraint on how it gets built, not a nice-to-have.
 
 ---
 
@@ -19,6 +21,19 @@ Published by **Katabatic Engineering** as a free public resource. The tool is th
 3. **User documents never leave the browser.** The document scanner is entirely client-side. The project accepts **no server-side document intake, ever** — no uploads, no pasted text sent to a server, no exceptions. See "Why documents stay client-side."
 4. **Runs on locked-down machines.** Stock Edge/Chrome on old government Windows boxes. No WebGPU, no installs, no multi-GB downloads.
 5. **Verifiable grounding.** Every requirement, search result, finding, and AI answer links to its exact section and quoted source text. Prominent disclaimer: unofficial, not affiliated with or endorsed by WSDOT; always verify against the published manual.
+6. **The code is part of the product.** Open source, MIT, written to be read and forked. Test-first; comments that explain *why*, never *what*; honest accuracy reporting. See below.
+
+## Code quality bar
+
+The repo will be read by strangers deciding whether to trust the tool and whether to fork it. Both judgments get made from the source.
+
+- **Test-first.** New behavior arrives with a failing test that describes it. `make test` stays fast and hermetic (no network, no PDFs); the ~5-minute suite against the real corpus runs separately, and weekly in CI.
+- **Comments record why, not what.** A comment earns its place only by capturing a constraint the code cannot show — almost always something learned the hard way. The parser's comments are the model: they explain why the *obvious* approach is wrong.
+- **Honest accuracy.** If extraction is 85% accurate, the docs say 85%. Silent truncation, unreported caps, and "should be fine" are bugs. The tool's entire premise is that it doesn't bluff.
+- **`make lint` clean**; ruff-formatted; CI green on every push.
+- **Forkability is a feature.** `CONTRIBUTING.md` explains exactly what another agency must change (section-number pattern, sort order, corpus list) and what already generalizes.
+
+Current state: **46 tests pass** (35 unit + 11 integration against the real PDFs), lint clean. The Phase 0 pipeline was written test-*after* and the suite was backfilled — a real gap, now closed. Everything from Phase 1 on is test-first.
 
 ## Why it stays public
 

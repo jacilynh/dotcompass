@@ -1,0 +1,24 @@
+[project]
+name = "wsdot-spec-tool"
+version = "0.1.0"
+description = "A free, public tool over the WSDOT Standard Specifications (M 41-10), with 26 years of section history."
+requires-python = ">=3.11"
+dependencies = ["pymupdf>=1.24"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Integration tests need the 17 source PDFs, which are gitignored (they are WSDOT's
+# to publish, not ours to vendor). They self-skip when corpus/ is absent, so a fresh
+# clone can still run the full unit suite. Run `make corpus` to enable them.
+markers = ["corpus: requires the source PDFs in corpus/ (run `make corpus`)"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 95
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

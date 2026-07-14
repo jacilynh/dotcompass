@@ -43,13 +43,18 @@ def word_diff(old_text, new_text):
     return ops
 
 
+def load(path):
+    """A parsed edition, keyed by section number."""
+    with open(path) as handle:
+        return {section["num"]: section for section in json.load(handle)}
+
+
 def main():
     if len(sys.argv) != 4:
         raise SystemExit("usage: diff_editions.py <old.json> <new.json> <out.json>")
     old_path, new_path, out_path = sys.argv[1:4]
 
-    old = {s["num"]: s for s in json.load(open(old_path))}
-    new = {s["num"]: s for s in json.load(open(new_path))}
+    old, new = (load(path) for path in (old_path, new_path))
 
     result = {"added": [], "removed": [], "vacated": [], "changed": [], "unchanged": 0}
 

@@ -1,4 +1,9 @@
 corpus/*.pdf
 pipeline/out/
+pipeline/*.json
+!pipeline/history.json
 node_modules/
 dist/
+__pycache__/
+.pytest_cache/
+.ruff_cache/

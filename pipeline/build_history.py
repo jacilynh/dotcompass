@@ -29,7 +29,6 @@ import re
 import sys
 from difflib import SequenceMatcher
 
-
 DOT_LEADER_TAIL = re.compile(r"[\s.]*(?:\.\s*){3,}$")  # "Definitions and Terms . . . ."
 
 
@@ -83,9 +82,7 @@ def churn(before, after):
     old, new = normalize(before).split(), normalize(after).split()
     if not old and not new:
         return 0.0
-    same = sum(
-        block.size for block in SequenceMatcher(None, old, new).get_matching_blocks()
-    )
+    same = sum(block.size for block in SequenceMatcher(None, old, new).get_matching_blocks())
     return round(1 - (2 * same) / (len(old) + len(new) or 1), 3)
 
 
@@ -114,9 +111,7 @@ def build(editions):
                         {"year": year, "event": "vacated", "was": prev["text"][:400]}
                     )
                 elif prev["vacant"] and not cur["vacant"]:
-                    events.append(
-                        {"year": year, "event": "restored", "title": cur["title"]}
-                    )
+                    events.append({"year": year, "event": "restored", "title": cur["title"]})
                 elif normalize(cur["text"]) != normalize(prev["text"]):
                     events.append(
                         {
@@ -161,20 +156,22 @@ def main():
     healed = heal_single_edition_gaps(editions)
     history = build(editions)
     with open(out_path, "w") as handle:
-        json.dump(
-            {"editions": list(editions), "sections": history}, handle, indent=1
-        )
+        json.dump({"editions": list(editions), "sections": history}, handle, indent=1)
 
     counts = {}
     for record in history.values():
         for event in record["events"]:
             counts[event["event"]] = counts.get(event["event"], 0) + 1
 
+    latest = max(editions)
+    live = sum(1 for r in history.values() if r["current"])
+    vacant = sum(1 for r in history.values() if r["vacant_now"])
+
     print(f"editions: {list(editions)}")
     print(f"single-edition gaps healed as parse misses: {healed:,}")
     print(f"sections ever published: {len(history):,}")
-    print(f"  live in {max(editions)}: {sum(1 for r in history.values() if r['current']):,}")
-    print(f"  vacant  in {max(editions)}: {sum(1 for r in history.values() if r['vacant_now']):,}")
+    print(f"  live in {latest}:   {live:,}")
+    print(f"  vacant in {latest}: {vacant:,}")
     print("events:", {k: counts[k] for k in sorted(counts, key=lambda k: -counts[k])})
     print(f"wrote {out_path}")
 

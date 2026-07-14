@@ -135,7 +135,7 @@ def read_lines(doc, header_y, footer_y):
                         "style": (first["font"], round(first["size"])),
                     }
                 )
-        lines.extend(sorted(page, key=lambda l: l["y"]))
+        lines.extend(sorted(page, key=lambda ln: ln["y"]))
     return lines
 
 
@@ -181,7 +181,7 @@ def slice_sections(lines, accepted):
             body_start = i + 2
 
         body_end = accepted[n + 1][0] if n + 1 < len(accepted) else len(lines)
-        text = "\n".join(l["full"] for l in lines[body_start:body_end]).strip()
+        text = "\n".join(ln["full"] for ln in lines[body_start:body_end]).strip()
 
         sections[num] = {
             "num": num,
@@ -235,7 +235,6 @@ def monotonic(marks):
     return chain[::-1]
 
 
-
 def parse(pdf_path):
     doc = fitz.open(pdf_path)
     header_y, footer_y = detect_bands(doc)
@@ -243,7 +242,7 @@ def parse(pdf_path):
     if not lines:
         raise SystemExit(f"{pdf_path}: no text layer")
 
-    body_style = Counter(l["style"] for l in lines).most_common(1)[0][0]
+    body_style = Counter(ln["style"] for ln in lines).most_common(1)[0][0]
     marks = find_headings(lines, body_style)
     if not marks:
         raise SystemExit(f"{pdf_path}: no headings found (body style {body_style})")
