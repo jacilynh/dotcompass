@@ -20,6 +20,7 @@ const INDEX: Index = {
     earliest: 2000,
   },
   divisions: [{ n: 1, title: "General Requirements" }],
+  removed: {},
   sections: [
     { num: "1-09.6", division: 1, title: "Progress Estimates and Payments", vacant: false },
     { num: "1-09.7", division: 1, title: "Vacant", vacant: true },

@@ -13,7 +13,29 @@ export function Home() {
       <Hero stats={stats} />
       <StatBand stats={stats} />
       <DivisionGrid divisions={divisions} />
+      <ScanPrompt latest={stats.latest} />
     </div>
+  );
+}
+
+function ScanPrompt({ latest }: { latest: number }) {
+  return (
+    <section className="rounded-xl border border-border bg-surface p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+      <div className="max-w-reading">
+        <h2 className="text-lg font-semibold text-ink">Have a draft to check?</h2>
+        <p className="mt-1 text-sm leading-6 text-muted">
+          Paste a special provision and every section number it cites is checked against the {latest}{" "}
+          edition — flagging anything that points to a struck or removed section. It runs entirely in
+          your browser; the text never leaves your machine.
+        </p>
+      </div>
+      <Link
+        to="/scan"
+        className="mt-4 inline-block whitespace-nowrap rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:opacity-90 sm:mt-0"
+      >
+        Check a draft →
+      </Link>
+    </section>
   );
 }
 

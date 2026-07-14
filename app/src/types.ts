@@ -29,6 +29,8 @@ export interface Index {
   stats: Stats;
   divisions: Division[];
   sections: IndexEntry[];
+  /** Section numbers gone from the latest edition, mapped to the last year they appeared. */
+  removed: Record<string, number>;
 }
 
 /** The current (latest-edition) full text of a section, from sections/<d>.json. */

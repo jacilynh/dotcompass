@@ -146,6 +146,15 @@ def main():
         "divisions": [{"n": n, "title": t} for n, t in DIVISION_TITLES.items()],
         # Only sections that appear in the latest edition — the current book, in order.
         "sections": _index_sections(current),
+        # Numbers that once existed but are gone from the latest edition, mapped to the
+        # last year they appeared. This lets the document scanner distinguish a genuinely
+        # removed section (a stale citation worth flagging) from a number that never
+        # existed (a typo) — instantly, with no extra fetch. Small: a few hundred entries.
+        "removed": {
+            num: r["last_seen"]
+            for num, r in sections.items()
+            if not r["current"] and not r["vacant_now"]
+        },
     }
     _write(os.path.join(out_dir, "index.json"), index)
 

@@ -7,6 +7,7 @@ import { Browse } from "./routes/Browse";
 import { Home } from "./routes/Home";
 import { HowBuilt } from "./routes/HowBuilt";
 import { NotFound } from "./routes/NotFound";
+import { Scan } from "./routes/Scan";
 import { SectionPage } from "./routes/SectionPage";
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/browse" element={<Browse />} />
+            <Route path="/scan" element={<Scan />} />
             <Route path="/section/:num" element={<SectionPage />} />
             <Route path="/how-it-was-built" element={<HowBuilt />} />
             <Route path="/about" element={<About />} />
