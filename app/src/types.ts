@@ -25,12 +25,33 @@ export interface IndexEntry {
   vacant: boolean;
 }
 
+/** Filter vocabularies and totals for the requirements explorer, from index.json. */
+export interface RequirementStats {
+  total: number;
+  parties: string[]; // named parties first, Work/Material last
+  partyCounts: Record<string, number>;
+  topics: string[]; // most common first
+  topicCounts: Record<string, number>;
+  perDivision: Record<string, number>;
+}
+
 export interface Index {
   stats: Stats;
   divisions: Division[];
   sections: IndexEntry[];
   /** Section numbers gone from the latest edition, mapped to the last year they appeared. */
   removed: Record<string, number>;
+  requirements: RequirementStats;
+}
+
+/** One extracted obligation, from requirements/<d>.json. Text is verbatim. */
+export interface Requirement {
+  section: string;
+  division: number;
+  party: string;
+  modal: "shall" | "must" | "required";
+  topics: string[];
+  text: string;
 }
 
 /** The current (latest-edition) full text of a section, from sections/<d>.json. */

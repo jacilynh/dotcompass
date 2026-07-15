@@ -61,6 +61,10 @@ So the parser **measures each book** instead of assuming: modal body font, heade
 
 Result: it recovers all 2,235 TOC-listed sections of the 2026 edition **with zero misses, without reading the TOC** — and finds ~1,000 more that WSDOT's own TOC omits (the deepest `(2)A` level).
 
+### On the requirements extraction
+
+The requirements index is **rule-based, not model-generated** — every entry is a verbatim sentence, so there's nothing to hallucinate (the same reason the scanner is deterministic). The one judgment call, *who the obligation binds*, is spot-checked by hand at roughly **90% accuracy** on named parties (Contractor / Engineer / Agency); the residual errors are mostly an actor named in a subordinate clause rather than as the grammatical subject, or a passive "…must be furnished by the Contractor" where the actor follows the verb. The passive majority ("concrete shall reach 4000 psi") is labelled *Work/Material*. The sentence splitter also occasionally merges a numbered list into one long entry. A Claude-assisted enrichment pass (richer topic tags, better party attribution) is a clean future add; the deterministic core is the honest, reproducible baseline.
+
 ### Where it's still weak — stated plainly
 
 The pre-2010 parses are the least reliable, 2004 worst. The raw output claimed 228 sections vanished and returned; **215 were gaps of exactly one edition**, clustered in the editions that parse badly. WSDOT does not strike and reinstate 215 sections two years apart — the parser missed them. Those gaps are healed and flagged `inferred`, which drops spurious reinstatements from 232 to 17. The UI marks pre-2010 data lower-confidence. A tool whose whole premise is *it doesn't bluff* should not open by bluffing about its own data.

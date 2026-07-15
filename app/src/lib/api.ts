@@ -1,4 +1,4 @@
-import type { Index, SectionHistory, SectionText } from "../types";
+import type { Index, Requirement, SectionHistory, SectionText } from "../types";
 
 /**
  * Data access. Everything is static JSON under `public/data`, fetched relative to the
@@ -33,3 +33,6 @@ export const getDivisionText = (division: number) =>
 
 export const getDivisionHistory = (division: number) =>
   load<Record<string, SectionHistory>>(`history/${division}.json`);
+
+export const getDivisionRequirements = (division: number) =>
+  load<Requirement[]>(`requirements/${division}.json`);

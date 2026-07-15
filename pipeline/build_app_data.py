@@ -29,6 +29,7 @@ import json
 import os
 import re
 import sys
+from collections import Counter
 from difflib import SequenceMatcher
 
 # build_history is a sibling script, not an installed module, so its directory is put
@@ -104,10 +105,45 @@ def timeline_with_diffs(num, record, editions, years):
     return out
 
 
+def emit_requirements(requirements_path, out_dir, index):
+    """Split the extracted requirements by division and record filter metadata.
+
+    Each requirement carries its section, so a per-division split lets the app load only
+    the divisions in view. The index gains the party/topic vocabularies and totals so the
+    filter UI and the headline counts need no extra fetch.
+    """
+    with open(requirements_path) as handle:
+        requirements = json.load(handle)
+
+    os.makedirs(os.path.join(out_dir, "requirements"), exist_ok=True)
+    by_division = {}
+    for req in requirements:
+        by_division.setdefault(req["division"], []).append(req)
+    for division, reqs in by_division.items():
+        _write(os.path.join(out_dir, "requirements", f"{division}.json"), reqs)
+
+    parties = Counter(r["party"] for r in requirements)
+    topics = Counter(t for r in requirements for t in r["topics"])
+    per_division = Counter(r["division"] for r in requirements)
+    index["requirements"] = {
+        "total": len(requirements),
+        # Ordered so named parties lead and Work/Material (the passive majority) trails.
+        "parties": [p for p, _ in parties.most_common() if p != "Work/Material"]
+        + (["Work/Material"] if "Work/Material" in parties else []),
+        "partyCounts": dict(parties),
+        "topics": [t for t, _ in topics.most_common()],
+        "topicCounts": dict(topics),
+        "perDivision": {str(d): per_division.get(d, 0) for d in DIVISION_TITLES},
+    }
+    return len(requirements)
+
+
 def main():
-    if len(sys.argv) != 4:
-        raise SystemExit("usage: build_app_data.py <editions_dir> <history.json> <out_dir>")
-    editions_dir, history_path, out_dir = sys.argv[1:4]
+    if len(sys.argv) != 5:
+        raise SystemExit(
+            "usage: build_app_data.py <editions_dir> <history> <requirements> <out_dir>"
+        )
+    editions_dir, history_path, requirements_path, out_dir = sys.argv[1:5]
 
     editions = load_editions(editions_dir)
     with open(history_path) as handle:
@@ -156,6 +192,9 @@ def main():
             if not r["current"] and not r["vacant_now"]
         },
     }
+    # Requirements augment the index in place (filter vocabularies + totals), so this
+    # runs before index.json is written.
+    requirement_count = emit_requirements(requirements_path, out_dir, index)
     _write(os.path.join(out_dir, "index.json"), index)
 
     # Per-division current text and per-division history with diffs.
@@ -191,8 +230,11 @@ def main():
         for root, _, files in os.walk(out_dir)
         for f in files
     )
-    print(f"wrote {out_dir}: index + 9 sections + 9 history files, {total / 1e6:.1f} MB total")
-    print(f"  {len(index['sections']):,} current sections; {revisions:,} revisions diffed")
+    print(f"wrote {out_dir}: index + sections + history + requirements ({total / 1e6:.1f} MB)")
+    print(
+        f"  {len(index['sections']):,} current sections; {revisions:,} revisions diffed; "
+        f"{requirement_count:,} requirements"
+    )
 
 
 def _index_sections(current):

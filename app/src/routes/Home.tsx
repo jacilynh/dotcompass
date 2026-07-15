@@ -6,12 +6,12 @@ import { useIndex } from "../lib/indexContext";
 import type { Stats } from "../types";
 
 export function Home() {
-  const { stats, divisions } = useIndex();
+  const { stats, divisions, requirements } = useIndex();
 
   return (
     <div className="space-y-14">
       <Hero stats={stats} />
-      <StatBand stats={stats} />
+      <StatBand stats={stats} requirementsTotal={requirements.total} />
       <DivisionGrid divisions={divisions} />
       <ScanPrompt latest={stats.latest} />
     </div>
@@ -72,14 +72,14 @@ function Hero({ stats }: { stats: Stats }) {
   );
 }
 
-function StatBand({ stats }: { stats: Stats }) {
+function StatBand({ stats, requirementsTotal }: { stats: Stats; requirementsTotal: number }) {
   const items = [
     { value: stats.everPublished, label: "sections ever published" },
     { value: stats.live, label: `live in ${stats.latest}` },
     { value: stats.sinceStart, label: `unchanged in number since ${stats.earliest}` },
     { value: stats.revisions, label: "revisions tracked" },
+    { value: requirementsTotal, label: "requirements indexed" },
     { value: stats.vacant, label: `vacant in ${stats.latest}` },
-    { value: stats.editions.length, label: "editions parsed" },
   ];
   return (
     <section className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3 lg:grid-cols-6">

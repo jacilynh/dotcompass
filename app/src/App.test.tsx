@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { Index, SectionHistory, SectionText } from "./types";
+import type { Index, Requirement, SectionHistory, SectionText } from "./types";
 
 // Mock the data layer so the whole app can be exercised without the generated JSON.
 // The fixtures are the 1-09.7 story, which is what the app is built to tell.
@@ -21,6 +21,14 @@ const INDEX: Index = {
   },
   divisions: [{ n: 1, title: "General Requirements" }],
   removed: {},
+  requirements: {
+    total: 12919,
+    parties: ["Contractor", "Work/Material"],
+    partyCounts: { Contractor: 2161, "Work/Material": 10530 },
+    topics: ["Materials"],
+    topicCounts: { Materials: 3221 },
+    perDivision: { "1": 996 },
+  },
   sections: [
     { num: "1-09.6", division: 1, title: "Progress Estimates and Payments", vacant: false },
     { num: "1-09.7", division: 1, title: "Vacant", vacant: true },
@@ -46,10 +54,30 @@ const DIV_HISTORY: Record<string, SectionHistory> = {
   },
 };
 
+const DIV_REQS: Requirement[] = [
+  {
+    section: "1-09.7",
+    division: 1,
+    party: "Contractor",
+    modal: "shall",
+    topics: ["Submittals"],
+    text: "The Contractor shall submit a schedule.",
+  },
+  {
+    section: "1-06.2",
+    division: 1,
+    party: "Work/Material",
+    modal: "shall",
+    topics: ["Materials"],
+    text: "Concrete shall reach 4000 psi.",
+  },
+];
+
 vi.mock("./lib/api", () => ({
   getIndex: () => Promise.resolve(INDEX),
   getDivisionText: () => Promise.resolve(DIV_TEXT),
   getDivisionHistory: () => Promise.resolve(DIV_HISTORY),
+  getDivisionRequirements: () => Promise.resolve(DIV_REQS),
 }));
 
 // Imported after the mock is registered.
@@ -103,5 +131,21 @@ describe("App", () => {
     // The finding appears with its stale-citation status; nothing was sent anywhere.
     expect(await screen.findByText(/citing a struck section/i)).toBeInTheDocument();
     expect(screen.getByText(/never leaves your browser/i)).toBeInTheDocument();
+  });
+
+  it("lists requirements and narrows them with a party filter", async () => {
+    render(
+      <MemoryRouter initialEntries={["/requirements"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    // Both requirements load initially.
+    expect(await screen.findByText(/The Contractor shall submit a schedule/)).toBeInTheDocument();
+    expect(screen.getByText(/Concrete shall reach 4000 psi/)).toBeInTheDocument();
+
+    // Filtering to Contractor drops the Work/Material one.
+    fireEvent.click(screen.getByRole("button", { name: /^Contractor/ }));
+    expect(screen.getByText(/The Contractor shall submit a schedule/)).toBeInTheDocument();
+    expect(screen.queryByText(/Concrete shall reach 4000 psi/)).not.toBeInTheDocument();
   });
 });
