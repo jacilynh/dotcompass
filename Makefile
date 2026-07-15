@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history requirements app-data test test-all lint fmt clean
+.PHONY: help corpus parse history requirements app-data embeddings test test-all lint fmt clean
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -30,6 +30,9 @@ requirements: parse  ## Extract every "shall/must" requirement from the current 
 
 app-data: history requirements  ## Emit the web app's data (app/public/data/) from the pipeline
 	$(PY) pipeline/build_app_data.py pipeline/out pipeline/history.json pipeline/requirements.json app/public/data
+
+embeddings: app-data  ## Semantic-search embeddings + self-hosted model (needs: cd app && npm install)
+	cd app && npm run embed
 
 test:  ## Run the fast unit suite (no PDFs needed)
 	$(PY) -m pytest tests/ -m "not corpus"

@@ -10,6 +10,7 @@ import { HowBuilt } from "./routes/HowBuilt";
 import { NotFound } from "./routes/NotFound";
 import { Requirements } from "./routes/Requirements";
 import { Scan } from "./routes/Scan";
+import { Search } from "./routes/Search";
 import { SectionPage } from "./routes/SectionPage";
 
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
             <Route path="/browse" element={<Browse />} />
             <Route path="/scan" element={<Scan />} />
             <Route path="/ask" element={<Ask />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/requirements" element={<Requirements />} />
             <Route path="/section/:num" element={<SectionPage />} />
             <Route path="/how-it-was-built" element={<HowBuilt />} />

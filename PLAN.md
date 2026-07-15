@@ -6,7 +6,7 @@
 > Phase 0 (corpus pipeline) validated; Spec Explorer, keyword search, and the Section
 > History viewer, the document scanner, and the requirements explorer are deployed. The
 > Ask-the-Specs Worker (6) is built and tested (worker/) but needs a Cloudflare account +
-> API key to deploy. Remaining: semantic search (3), polish (7).
+> API key to deploy. Hybrid keyword+semantic search (3) is live. Remaining: polish (7).
 
 ## Mission
 

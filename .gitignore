@@ -12,3 +12,6 @@ app/dist/
 
 # TypeScript build info
 *.tsbuildinfo
+app/public/models/
+app/public/data/embeddings.*
+app/public/ort/

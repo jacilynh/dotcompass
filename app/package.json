@@ -6,13 +6,16 @@
   "description": "Static web app for browsing the WSDOT Standard Specifications and 26 years of section history.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && npm run postbuild",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "embed": "node scripts/embed.mjs",
+    "postbuild": "node -e \"require('fs').readdirSync('dist/assets').filter(f=>/jsep.*.wasm$/.test(f)).forEach(f=>require('fs').rmSync('dist/assets/'+f))\""
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2"

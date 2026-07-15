@@ -21,9 +21,13 @@ export function SearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const exact = index.sections.find((s) => s.num.toLowerCase() === query.trim().toLowerCase());
-    const target = exact ?? results[0];
-    if (target) navigate(`/section/${target.num}`);
+    const q = query.trim();
+    if (!q) return;
+    // An exact section number jumps straight there; anything else goes to the full
+    // hybrid (keyword + semantic) results page.
+    const exact = index.sections.find((s) => s.num.toLowerCase() === q.toLowerCase());
+    if (exact) navigate(`/section/${exact.num}`);
+    else navigate(`/search?q=${encodeURIComponent(q)}`);
   }
 
   return (

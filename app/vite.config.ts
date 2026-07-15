@@ -9,10 +9,19 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  // transformers.js and its ONNX runtime are loaded lazily and self-hosted (public/models,
+  // public/ort). Excluding them from dep pre-bundling stops Vite from also emitting the
+  // ~21 MB WebGPU WASM variant we never use — we force the single-threaded WASM backend.
+  optimizeDeps: { exclude: ["@huggingface/transformers"] },
   build: {
-    // The data lives in public/data and is fetched at runtime, not bundled — so the
-    // JS bundle stays small and each division loads on demand.
-    chunkSizeWarningLimit: 700,
+    // The data and models live in public/ and are fetched at runtime, not bundled — so
+    // the JS bundle stays small and everything heavy loads on demand.
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      // Don't emit the WebGPU runtime as a bundled asset; the WASM backend is served from
+      // public/ort at runtime.
+      external: [/onnxruntime-web.*\.jsep\.wasm$/],
+    },
   },
   test: {
     // Pure-logic tests default to node; component tests opt into jsdom with a

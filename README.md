@@ -61,6 +61,10 @@ So the parser **measures each book** instead of assuming: modal body font, heade
 
 Result: it recovers all 2,235 TOC-listed sections of the 2026 edition **with zero misses, without reading the TOC** — and finds ~1,000 more that WSDOT's own TOC omits (the deepest `(2)A` level).
 
+### On semantic search
+
+Search is **hybrid**: keyword (lexical) results appear instantly, and in-browser semantic results — computed by an `all-MiniLM-L6-v2` model running via WebAssembly — merge in via reciprocal-rank fusion once the model loads. Passage vectors are precomputed at build time (`app/scripts/embed.mjs`) with the *same* model and int8 quantization the browser uses, so query and passage vectors are directly comparable. The model and ONNX runtime are **self-hosted** (~44 MB, git-ignored, deployed with the site), so the feature needs no external request and works on locked-down machines. It's a progressive enhancement: if the model can't load, search stays keyword-only.
+
 ### On the requirements extraction
 
 The requirements index is **rule-based, not model-generated** — every entry is a verbatim sentence, so there's nothing to hallucinate (the same reason the scanner is deterministic). The one judgment call, *who the obligation binds*, is spot-checked by hand at roughly **90% accuracy** on named parties (Contractor / Engineer / Agency); the residual errors are mostly an actor named in a subordinate clause rather than as the grammatical subject, or a passive "…must be furnished by the Contractor" where the actor follows the verb. The passive majority ("concrete shall reach 4000 psi") is labelled *Work/Material*. The sentence splitter also occasionally merges a numbered list into one long entry. A Claude-assisted enrichment pass (richer topic tags, better party attribution) is a clean future add; the deterministic core is the honest, reproducible baseline.
