@@ -11,9 +11,9 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 # The site allowed to call this Worker (CORS). Change to your deployed origin.
-ALLOWED_ORIGIN = "https://jacilynh.github.io"
+ALLOWED_ORIGIN = "https://dotcompass.dev"
 # Where the Worker fetches the retrieval corpus (public spec text, emitted by the build).
-CORPUS_URL = "https://jacilynh.github.io/dotcompass/data/ask-corpus.json"
+CORPUS_URL = "https://dotcompass.dev/data/ask-corpus.json"
 # Hard monthly spend ceiling in USD. When reached, the Worker returns `capped` and the
 # site falls back to keyword search until the next month. This makes overspend impossible.
 MONTHLY_CAP_USD = "30"

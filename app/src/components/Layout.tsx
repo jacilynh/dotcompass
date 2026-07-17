@@ -47,7 +47,7 @@ function Header() {
           </span>
         </NavLink>
 
-        <StateSwitcher />
+        {STATES.length > 1 && <StateSwitcher />}
 
         {/* Desktop: the full nav row, shown only at widths where it fits. */}
         <nav className="ml-auto hidden items-center gap-1 lg:flex">

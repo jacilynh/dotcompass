@@ -55,7 +55,14 @@ const NORTH_DAKOTA: StateConfig = {
   uncleared: true, // NDDOT reuse terms unstated — this state is a local demo only
 };
 
-export const STATES: StateConfig[] = [WASHINGTON, NORTH_DAKOTA];
+// Uncleared states (reuse terms not cleared) appear only in a dev build — the local
+// two-state demo — never in a production build. This ties the switcher's visibility to the
+// reuse gate: a published site can only ever offer states whose text it is allowed to serve,
+// so there is no broken "NDDOT" option on dotcompass.dev and no reason for its data to ship.
+const ALL_STATES: StateConfig[] = [WASHINGTON, NORTH_DAKOTA];
+export const STATES: StateConfig[] = ALL_STATES.filter(
+  (s) => import.meta.env.DEV || !s.uncleared,
+);
 
 const STORAGE_KEY = "dotcompass.state";
 

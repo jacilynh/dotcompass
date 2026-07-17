@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history requirements app-data embeddings test test-all lint fmt clean
+.PHONY: help corpus parse history requirements app-data embeddings test test-all lint fmt clean publish deploy
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -47,6 +47,19 @@ lint:  ## Check formatting and lint
 fmt:  ## Auto-format
 	$(PY) -m ruff format .
 	$(PY) -m ruff check --fix .
+
+publish:  ## Build the deployable site (app/dist) — CLEARED states only, never uncleared text
+	@# The reuse gate at publish time: remove any locally-built uncleared-state data so it
+	@# can never end up in dist/. (Rebuild it for the local demo with build_state --allow-uncleared.)
+	rm -rf app/public/data/nd
+	$(MAKE) app-data
+	@# For semantic search parity, run `make embeddings` before this; it degrades to keyword
+	@# search otherwise. build_state.py refuses uncleared states, so only public data is bundled.
+	cd app && npm run build
+	@echo "==> app/dist ready (cleared states only). Deploy with: make deploy"
+
+deploy: publish  ## Publish app/dist to Cloudflare Pages (needs: cd app && npx wrangler login)
+	cd app && npx wrangler pages deploy dist --project-name=dotcompass
 
 clean:  ## Remove generated artifacts (keeps the downloaded corpus)
 	rm -rf pipeline/out pipeline/history.json .pytest_cache **/__pycache__
