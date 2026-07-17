@@ -18,11 +18,11 @@ CORPUS_URL = "https://dotcompass.dev/data/ask-corpus.json"
 # site falls back to keyword search until the next month. This makes overspend impossible.
 MONTHLY_CAP_USD = "30"
 
-# Monthly spend counter. Create with:  wrangler kv namespace create SPEND
-# then paste the returned id below (and a preview_id for `wrangler dev`).
+# Monthly spend counter. Created with:  wrangler kv:namespace create SPEND [--preview]
 [[kv_namespaces]]
 binding = "SPEND"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "732f846b2a73483ea28f93231a09581f"
+preview_id = "6188e8139de74a38bea90f10847cb8a3"
 
 # Native per-IP rate limiting. Optional — delete this block if your account lacks the
 # binding; the Worker skips rate limiting gracefully when it is absent.
