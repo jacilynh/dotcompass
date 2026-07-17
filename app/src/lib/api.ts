@@ -7,7 +7,7 @@ import type { Index, Requirement, SectionHistory, SectionText } from "../types";
  * division's text/history the first time it's opened.
  */
 
-const base = import.meta.env.BASE_URL; // e.g. "/" or "/wsdot-spec-tool/"
+const base = import.meta.env.BASE_URL; // e.g. "/" or "/dotcompass/"
 
 const cache = new Map<string, Promise<unknown>>();
 

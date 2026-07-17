@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 
 // `base: "./"` makes every asset and data path relative, so the built site works
 // unchanged whether it's served from a domain root, a GitHub Pages project subpath
-// (`/wsdot-spec-tool/`), or opened from a file share on a locked-down machine. Paired
+// (`/dotcompass/`), or opened from a file share on a locked-down machine. Paired
 // with HashRouter, there are no server rewrites to configure and no refresh-404s.
 export default defineConfig({
   base: "./",

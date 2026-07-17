@@ -4,7 +4,7 @@ A free, public tool over the **WSDOT Standard Specifications for Road, Bridge, a
 
 > **Unofficial.** Not affiliated with or endorsed by the Washington State Department of Transportation. Always verify against the published manual.
 
-**Live:** <https://jacilynh.github.io/wsdot-spec-tool/> · A free tool from Katabatic Engineering.
+**Live:** <https://jacilynh.github.io/dotcompass/> · A free tool from Katabatic Engineering.
 
 ![The section history for 1-09.7 Mobilization — introduced 2000, revised six times, struck in 2026](docs/screenshots/section-history.png)
 

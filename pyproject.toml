@@ -1,5 +1,5 @@
 [project]
-name = "wsdot-spec-tool"
+name = "dotcompass"
 version = "0.1.0"
 description = "A free, public tool over the WSDOT Standard Specifications (M 41-10), with 26 years of section history."
 requires-python = ">=3.11"

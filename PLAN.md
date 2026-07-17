@@ -2,7 +2,7 @@
 
 > Product name: **DOTcompass** (clearly unofficial; uses generic "DOT", no WSDOT marks — the prominent "unofficial" framing does the work).
 > Planned with Claude Fable 5 (July 2026). Implementation on Opus / Codex.
-> **Phases 0, 1, 3, 4 are built. Live site: https://jacilynh.github.io/wsdot-spec-tool/**
+> **Phases 0, 1, 3, 4 are built. Live site: https://jacilynh.github.io/dotcompass/**
 > Phase 0 (corpus pipeline) validated; Spec Explorer, keyword search, and the Section
 > History viewer, the document scanner, and the requirements explorer are deployed. The
 > Ask-the-Specs Worker (6) is built and tested (worker/) but needs a Cloudflare account +
