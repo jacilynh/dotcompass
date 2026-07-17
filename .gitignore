@@ -1,4 +1,7 @@
-corpus/*.pdf
+# Source specification PDFs are the publishers' to distribute, not ours to vendor — for
+# ANY state, at any depth (corpus/SS2026.pdf, corpus/nd/2025.pdf, ...). This is also the
+# repo-level half of the reuse gate: an uncleared state's source can never be committed.
+corpus/
 pipeline/out/
 node_modules/
 dist/
