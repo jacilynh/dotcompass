@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { prepare, retrieve, tokenize } from "./retrieval";
+import { type Chunk, prepare, retrieve, tokenize } from "./retrieval";
+
+/** Minimal chunk for retrieval tests — only `text` drives scoring; `cite` identifies the hit. */
+function chunk(cite: string, text: string): Chunk {
+  return { text, cite, ref: cite, source: "Test", sourceId: "M 0", page: 1, url: "", inApp: true };
+}
 
 const CORPUS = [
-  { section: "1-09.7", text: "Mobilization consists of preconstruction expenses and the cost of moving equipment." },
-  { section: "1-07.1", text: "The Contractor shall comply with all Federal, State, and local laws." },
-  { section: "8-20.3", text: "Traffic signal systems shall be installed as shown in the Plans." },
-  { section: "9-03.1", text: "Fine aggregate for concrete shall be manufactured from ledge rock." },
+  chunk("1-09.7", "Mobilization consists of preconstruction expenses and the cost of moving equipment."),
+  chunk("1-07.1", "The Contractor shall comply with all Federal, State, and local laws."),
+  chunk("8-20.3", "Traffic signal systems shall be installed as shown in the Plans."),
+  chunk("9-03.1", "Fine aggregate for concrete shall be manufactured from ledge rock."),
 ];
 
 describe("tokenize", () => {
@@ -24,12 +29,12 @@ describe("retrieve", () => {
 
   it("finds the section that matches the question's terms", () => {
     const hits = retrieve(prepared, "what does mobilization cost include?", 3);
-    expect(hits[0]?.section).toBe("1-09.7");
+    expect(hits[0]?.cite).toBe("1-09.7");
   });
 
   it("ranks by how many distinct query terms match", () => {
     const hits = retrieve(prepared, "traffic signal installation", 4);
-    expect(hits[0]?.section).toBe("8-20.3");
+    expect(hits[0]?.cite).toBe("8-20.3");
   });
 
   it("returns nothing when no meaningful term matches", () => {
@@ -48,12 +53,12 @@ describe("retrieve", () => {
     // high weight). A chunk matching only the rare term must outrank one matching only the
     // common term.
     const idf = prepare([
-      { section: "1-01", text: "the contractor performs the work" },
-      { section: "1-02", text: "the contractor submits the forms" },
-      { section: "1-03", text: "the contractor is responsible" },
-      { section: "9-01", text: "material sampling procedures" },
+      chunk("1-01", "the contractor performs the work"),
+      chunk("1-02", "the contractor submits the forms"),
+      chunk("1-03", "the contractor is responsible"),
+      chunk("9-01", "material sampling procedures"),
     ]);
     const hits = retrieve(idf, "contractor material", 4);
-    expect(hits[0]?.section).toBe("9-01");
+    expect(hits[0]?.cite).toBe("9-01");
   });
 });

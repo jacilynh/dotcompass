@@ -33,9 +33,9 @@ const RECALL_THRESHOLD = 0.8; // fail the run below this (tune as the gold set g
 const CITATION_THRESHOLD = 0.7;
 
 /** 1-based rank of the first chunk whose section matches any expected prefix; 0 if none. */
-function matchRank(chunks: Array<{ section: string }>, expect: string[]): number {
+function matchRank(chunks: Array<{ cite: string }>, expect: string[]): number {
   for (let i = 0; i < chunks.length; i++) {
-    if (expect.some((p) => chunks[i]!.section.startsWith(p))) return i + 1;
+    if (expect.some((p) => chunks[i]!.cite.startsWith(p))) return i + 1;
   }
   return 0;
 }
@@ -47,7 +47,7 @@ function pct(n: number, d: number): string {
 async function loadCorpus() {
   const res = await fetch(CORPUS_URL);
   if (!res.ok) throw new Error(`corpus fetch failed (${res.status}) for ${CORPUS_URL}`);
-  return prepare((await res.json()) as Array<{ section: string; text: string }>);
+  return prepare((await res.json()) as Parameters<typeof prepare>[0]);
 }
 
 async function retrievalEval(useRerank: boolean): Promise<number> {
@@ -97,7 +97,7 @@ async function retrievalEval(useRerank: boolean): Promise<number> {
         `expect[${c.expect.join(", ")}]`,
     );
     if (!decisive) {
-      const top = (useRerank ? finalChunks : candidates).slice(0, 5).map((x) => x.section);
+      const top = (useRerank ? finalChunks : candidates).slice(0, 5).map((x) => x.cite);
       console.log(`     surfaced: ${top.join(", ")}`);
     }
   }
@@ -128,7 +128,7 @@ async function answerEval(): Promise<number> {
     });
     const d = (await res.json()) as {
       answer?: string;
-      citations?: string[];
+      citations?: Array<{ cite: string }>;
       confidence?: string;
       capped?: boolean;
     };
@@ -150,10 +150,10 @@ async function answerEval(): Promise<number> {
       );
     } else {
       answerable++;
-      const hit = citations.some((s) => c.expect.some((p) => s.startsWith(p)));
+      const hit = citations.some((s) => c.expect.some((p) => s.cite.startsWith(p)));
       if (hit) citeHits++;
       console.log(
-        `${hit ? "PASS" : "FAIL"} ${c.id.padEnd(24)} conf:${d.confidence}  cites:[${citations.join(", ")}]  expect[${c.expect.join(", ")}]`,
+        `${hit ? "PASS" : "FAIL"} ${c.id.padEnd(24)} conf:${d.confidence}  cites:[${citations.map((s) => s.cite).join(", ")}]  expect[${c.expect.join(", ")}]`,
       );
     }
   }

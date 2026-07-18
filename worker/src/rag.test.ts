@@ -1,6 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { buildUserMessage, citedSections, estimateCostUsd, validateQuestion } from "./rag";
+import { buildUserMessage, citedLabels, estimateCostUsd, validateQuestion } from "./rag";
+import type { ScoredChunk } from "./retrieval";
+
+function chunk(cite: string, text: string, over: Partial<ScoredChunk> = {}): ScoredChunk {
+  return {
+    text,
+    cite,
+    ref: cite,
+    source: "Standard Specifications",
+    sourceId: "M 41-10",
+    page: 1,
+    url: "",
+    inApp: true,
+    score: 2,
+    ...over,
+  };
+}
 
 describe("validateQuestion", () => {
   it("accepts a normal question", () => {
@@ -15,28 +31,34 @@ describe("validateQuestion", () => {
 });
 
 describe("buildUserMessage", () => {
-  it("includes the question and each section as labelled evidence", () => {
+  it("numbers the excerpts and tags each with its source", () => {
     const msg = buildUserMessage("What is mobilization?", [
-      { section: "1-09.7", text: "Mobilization consists of preconstruction expenses.", score: 2 },
+      chunk("1-09.7", "Mobilization consists of preconstruction expenses."),
+      chunk("CM p.363", "The Material Transfer Device is inspected before use.", {
+        source: "Construction Manual",
+        sourceId: "M 41-01",
+        page: 363,
+        inApp: false,
+      }),
     ]);
     expect(msg).toContain("Question: What is mobilization?");
-    expect(msg).toContain("[1-09.7]");
-    expect(msg).toContain("preconstruction expenses");
+    expect(msg).toContain("[1] Standard Specifications (M 41-10), section 1-09.7");
+    expect(msg).toContain("[2] Construction Manual (M 41-01), p.363");
   });
 });
 
-describe("citedSections", () => {
-  it("returns only the cited sections that were actually supplied", () => {
-    const answer = "Mobilization is defined in [1-09.7], not [9-99.9].";
-    expect(citedSections(answer, ["1-09.7", "1-07.1"])).toEqual(["1-09.7"]);
+describe("citedLabels", () => {
+  it("returns only the excerpt numbers that were actually supplied", () => {
+    const answer = "Mobilization is defined in [1]; see also [2], not [9].";
+    expect(citedLabels(answer, ["1", "2", "3"])).toEqual(["1", "2"]);
   });
 
   it("deduplicates repeated citations", () => {
-    expect(citedSections("[1-07.1] and again [1-07.1]", ["1-07.1"])).toEqual(["1-07.1"]);
+    expect(citedLabels("[2] and again [2]", ["1", "2"])).toEqual(["2"]);
   });
 
   it("is empty when the model cited nothing supplied", () => {
-    expect(citedSections("I could not find that.", ["1-09.7"])).toEqual([]);
+    expect(citedLabels("I could not find that.", ["1"])).toEqual([]);
   });
 });
 

@@ -25,7 +25,7 @@ import {
   SYSTEM_PROMPT,
   type StructuredAnswer,
   buildUserMessage,
-  citedSections,
+  citedLabels,
   estimateCostUsd,
   validateQuestion,
 } from "./rag";
@@ -121,9 +121,7 @@ async function generateAnswer(
     cost,
     answer: {
       answer: typeof out.answer === "string" ? out.answer : "",
-      citations: Array.isArray(out.citations)
-        ? out.citations.filter((c): c is string => typeof c === "string")
-        : [],
+      citations: Array.isArray(out.citations) ? out.citations.map((c) => String(c)) : [],
       confidence,
       caveats: Array.isArray(out.caveats)
         ? out.caveats.filter((c): c is string => typeof c === "string")
@@ -132,12 +130,25 @@ async function generateAnswer(
   };
 }
 
-/** The sections the answer actually grounds in: inline [x] markers plus the tool's
- *  `citations`, both filtered to the sections we supplied (so a hallucinated number is
- *  dropped, never surfaced as a citation). */
+/** A citation the client can render and link: the excerpt's number (what the model cited),
+ *  the readable label, and its source manual. */
+interface Citation {
+  id: number; // the bracketed number the model cited, [id]
+  cite: string; // readable label, e.g. "1-09.7" or "CM p.363"
+  source: string;
+  sourceId: string;
+  ref: string;
+  page: number;
+  url: string;
+  inApp: boolean;
+}
+
+/** The excerpt labels the answer actually grounds in: inline [x] markers plus the tool's
+ *  `citations`, both filtered to the labels we supplied (so a hallucinated citation is
+ *  dropped, never surfaced). */
 function resolveCitations(out: StructuredAnswer, supplied: string[]): string[] {
   const allowed = new Set(supplied);
-  const set = new Set<string>(citedSections(out.answer, supplied));
+  const set = new Set<string>(citedLabels(out.answer, supplied));
   for (const c of out.citations) if (allowed.has(c)) set.add(c);
   return [...set];
 }
@@ -181,9 +192,9 @@ export default {
     if (candidates.length === 0) {
       return json(
         {
-          answer: "I could not find anything about that in the specifications.",
+          answer: "I could not find anything about that in the WSDOT manuals.",
           citations: [],
-          sections: [],
+          sources: [],
           confidence: "low",
           caveats: [],
         },
@@ -207,39 +218,57 @@ export default {
       const reranked = await rerank(client, question, candidates, FINAL_K);
       totalCost += reranked.cost;
       const chunks: ScoredChunk[] = reranked.chunks;
-      const supplied = [...new Set(chunks.map((c) => c.section))];
+      // Number the excerpts [1]..[N]; the model cites those numbers. Map each back to the
+      // source metadata the client needs to render + link the citation.
+      const supplied = chunks.map((_, i) => String(i + 1));
+      const meta = new Map<string, Citation>();
+      chunks.forEach((c, i) => {
+        meta.set(String(i + 1), {
+          id: i + 1,
+          cite: c.cite,
+          source: c.source,
+          sourceId: c.sourceId,
+          ref: c.ref,
+          page: c.page,
+          url: c.url,
+          inApp: c.inApp,
+        });
+      });
 
       const first = await generateAnswer(client, question, chunks);
       totalCost += first.cost;
       let out = first.answer;
-      let citations = resolveCitations(out, supplied);
+      let cited = resolveCitations(out, supplied);
 
       // Citation retry: a fluent answer citing nothing usually means the prompt slipped.
-      if (citations.length === 0) {
+      if (cited.length === 0) {
         const retry = await generateAnswer(client, question, chunks);
         totalCost += retry.cost;
         out = retry.answer;
-        citations = resolveCitations(out, supplied);
+        cited = resolveCitations(out, supplied);
       }
       // Still ungrounded -> downgrade and say so, rather than assert something uncited.
-      if (citations.length === 0) {
+      if (cited.length === 0) {
         out = {
           ...out,
           confidence: "low",
           caveats: [
             ...out.caveats,
-            "No part of this answer could be tied to a specific section — treat it as a lead, not an answer, and verify against the manual.",
+            "No part of this answer could be tied to a specific manual excerpt — treat it as a lead, not an answer, and verify against the manual.",
           ],
         };
       }
 
-      // 6. Record spend, then return the grounded answer with confidence + caveats.
+      const citations = cited.map((label) => meta.get(label)!).filter(Boolean);
+      const sources = [...new Set(citations.map((c) => `${c.source} (${c.sourceId})`))];
+
+      // 6. Record spend, then return the grounded answer with source-tagged citations.
       await recordSpend(env, totalCost);
       return json(
         {
           answer: out.answer,
           citations,
-          sections: supplied,
+          sources,
           confidence: out.confidence,
           caveats: out.caveats,
           model: MODEL,

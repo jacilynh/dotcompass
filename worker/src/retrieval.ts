@@ -14,12 +14,20 @@
  * chunks and common terms.
  */
 
+/** One retrieval chunk. Carries its source so an answer can cite the manual it came from. */
 export interface Chunk {
-  section: string;
   text: string;
+  source: string; // manual title, e.g. "Construction Manual"
+  sourceId: string; // M-number, e.g. "M 41-01"
+  cite: string; // short label the model cites, e.g. "1-09.7" or "CM p.363"
+  ref: string; // fuller section/heading, may be ""
+  page: number; // page in the source PDF
+  url: string; // source PDF url (client appends #page=N); unused when inApp
+  inApp: boolean; // true -> the citation links to /section/<ref> in the app (Standard Specs)
 }
 
-export interface PreparedChunk extends Chunk {
+export interface PreparedChunk {
+  chunk: Chunk;
   /** Term frequencies within this chunk. */
   tf: Map<string, number>;
   /** Token count (document length), for BM25 length normalization. */
@@ -50,11 +58,11 @@ export function tokenize(text: string): string[] {
 
 /** Precompute each chunk's term frequencies and length once, at corpus load. */
 export function prepare(corpus: Chunk[]): PreparedChunk[] {
-  return corpus.map((c) => {
-    const tokens = tokenize(c.text);
+  return corpus.map((chunk) => {
+    const tokens = tokenize(chunk.text);
     const tf = new Map<string, number>();
     for (const t of tokens) tf.set(t, (tf.get(t) ?? 0) + 1);
-    return { section: c.section, text: c.text, tf, len: tokens.length };
+    return { chunk, tf, len: tokens.length };
   });
 }
 
@@ -69,27 +77,27 @@ export function retrieve(prepared: PreparedChunk[], question: string, k: number)
   if (terms.length === 0) return [];
 
   const N = prepared.length;
-  const avgdl = prepared.reduce((sum, c) => sum + c.len, 0) / (N || 1);
+  const avgdl = prepared.reduce((sum, p) => sum + p.len, 0) / (N || 1);
 
   // Document frequency and BM25 IDF per query term (probabilistic IDF, floored at 0).
   const idf = new Map<string, number>();
   for (const term of terms) {
     let df = 0;
-    for (const chunk of prepared) if (chunk.tf.has(term)) df++;
+    for (const p of prepared) if (p.tf.has(term)) df++;
     idf.set(term, Math.max(0, Math.log(1 + (N - df + 0.5) / (df + 0.5))));
   }
 
   const scored: ScoredChunk[] = [];
-  for (const chunk of prepared) {
+  for (const p of prepared) {
     let score = 0;
     for (const term of terms) {
-      const tf = chunk.tf.get(term);
+      const tf = p.tf.get(term);
       if (!tf) continue;
       const norm = tf * (K1 + 1);
-      const denom = tf + K1 * (1 - B + (B * chunk.len) / avgdl);
+      const denom = tf + K1 * (1 - B + (B * p.len) / avgdl);
       score += (idf.get(term) ?? 0) * (norm / denom);
     }
-    if (score > 0) scored.push({ section: chunk.section, text: chunk.text, score });
+    if (score > 0) scored.push({ ...p.chunk, score });
   }
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, k);

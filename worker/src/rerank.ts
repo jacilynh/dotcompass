@@ -54,7 +54,10 @@ export async function rerank(
   if (candidates.length <= topK) return { chunks: candidates, cost: 0 };
 
   const list = candidates
-    .map((c, i) => `[${i}] (§${c.section}) ${c.text.replace(/\s+/g, " ").slice(0, MAX_SNIPPET)}`)
+    .map(
+      (c, i) =>
+        `[${i}] (${c.cite} — ${c.source}) ${c.text.replace(/\s+/g, " ").slice(0, MAX_SNIPPET)}`,
+    )
     .join("\n\n");
   const prompt =
     `Question: ${question}\n\n` +

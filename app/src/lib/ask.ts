@@ -10,15 +10,33 @@ export const ASK_URL = import.meta.env.VITE_ASK_URL as string | undefined;
 
 export type Confidence = "low" | "medium" | "high";
 
+/** One cited excerpt, tagged with the manual it came from so the UI can name and link it. */
+export interface Citation {
+  id: number; // the bracketed number the model cited, [id]
+  cite: string; // the label shown, e.g. "1-09.7" or "CM p.363"
+  source: string; // manual title, e.g. "Construction Manual"
+  sourceId: string; // M-number, e.g. "M 41-01"
+  ref: string; // section/heading within the manual
+  page: number; // page in the source PDF
+  url: string; // source PDF (we append #page=N); unused when inApp
+  inApp: boolean; // true -> links to /section/<ref> in the app (Standard Specs)
+}
+
 export interface AskAnswer {
   kind: "answer";
   answer: string;
-  citations: string[];
-  sections: string[];
-  /** How well the retrieved sections support the answer (from the Worker). */
+  citations: Citation[];
+  /** Distinct manuals cited, e.g. ["Standard Specifications (M 41-10)"]. */
+  sources: string[];
+  /** How well the retrieved excerpts support the answer (from the Worker). */
   confidence?: Confidence;
-  /** What the sections don't establish, or where to verify (from the Worker). */
+  /** What the excerpts don't establish, or where to verify (from the Worker). */
   caveats: string[];
+}
+
+/** The href for a citation: an in-app section page, or the source PDF at the right page. */
+export function citationHref(c: Citation): string {
+  return c.inApp ? `#/section/${c.ref}` : `${c.url}#page=${c.page}`;
 }
 export type AskResult =
   | AskAnswer
@@ -44,8 +62,8 @@ export async function askWorker(question: string): Promise<AskResult> {
       return {
         kind: "answer",
         answer: data.answer,
-        citations: data.citations ?? [],
-        sections: data.sections ?? [],
+        citations: Array.isArray(data.citations) ? (data.citations as Citation[]) : [],
+        sources: Array.isArray(data.sources) ? data.sources : [],
         ...(confidence ? { confidence } : {}),
         caveats: Array.isArray(data.caveats) ? data.caveats : [],
       };
@@ -56,19 +74,23 @@ export async function askWorker(question: string): Promise<AskResult> {
   }
 }
 
-export type AnswerSegment = { text: string } | { cite: string };
+export type AnswerSegment = { text: string } | { cite: Citation };
 
 /**
- * Split an answer into plain-text and citation segments so the UI can render `[1-09.7]`
- * as a link to that section. Only bracketed section numbers become citations.
+ * Split an answer into plain-text and citation segments so the UI can render each inline
+ * `[label]` as a link to its source. A bracketed token becomes a citation only if it matches
+ * one of the answer's citation labels (which can be section numbers like `1-09.7` or manual
+ * cites like `CM p.363`); anything else stays literal text.
  */
-export function splitCitations(answer: string): AnswerSegment[] {
-  const pattern = /\[(\d-\d{2}(?:\.\d+)?(?:\([0-9A-Za-z]+\))*[A-Z]?)\]/g;
+export function splitCitations(answer: string, citations: Citation[]): AnswerSegment[] {
+  const byId = new Map(citations.map((c) => [c.id, c]));
   const segments: AnswerSegment[] = [];
   let last = 0;
-  for (const m of answer.matchAll(pattern)) {
+  for (const m of answer.matchAll(/\[(\d+)\]/g)) {
+    const cite = byId.get(Number(m[1]));
+    if (!cite) continue; // not one of our citation numbers — leave the brackets as text
     if (m.index > last) segments.push({ text: answer.slice(last, m.index) });
-    segments.push({ cite: m[1]! });
+    segments.push({ cite });
     last = m.index + m[0].length;
   }
   if (last < answer.length) segments.push({ text: answer.slice(last) });

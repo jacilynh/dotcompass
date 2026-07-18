@@ -4,7 +4,15 @@ import { Link } from "react-router-dom";
 import { DISCLAIMER } from "../config";
 import { FeatureUnavailable } from "../components/FeatureUnavailable";
 import { searchSections } from "../components/SearchBox";
-import { type AnswerSegment, ASK_URL, type AskResult, askWorker, splitCitations } from "../lib/ask";
+import {
+  type AnswerSegment,
+  ASK_URL,
+  type AskResult,
+  type Citation,
+  askWorker,
+  citationHref,
+  splitCitations,
+} from "../lib/ask";
 import { useIndex } from "../lib/indexContext";
 import { useActiveState } from "../states";
 import type { IndexEntry } from "../types";
@@ -106,7 +114,7 @@ function AnswerCard({ result }: { result: Extract<AskResult, { kind: "answer" }>
         </div>
       )}
       <p className="prose-spec whitespace-pre-wrap leading-7">
-        {splitCitations(result.answer).map((seg, i) => (
+        {splitCitations(result.answer, result.citations).map((seg, i) => (
           <Segment key={i} seg={seg} />
         ))}
       </p>
@@ -125,20 +133,58 @@ function AnswerCard({ result }: { result: Extract<AskResult, { kind: "answer" }>
       {result.citations.length > 0 && (
         <div className="mt-4 border-t border-border pt-3">
           <span className="text-xs font-medium uppercase tracking-wider text-faint">Sources</span>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {result.citations.map((num) => (
-              <Link
-                key={num}
-                to={`/section/${num}`}
-                className="rounded bg-raised px-2 py-0.5 font-mono text-xs text-accent hover:underline"
-              >
-                {num}
-              </Link>
+          <ul className="mt-1 space-y-1">
+            {uniqueByCite(result.citations).map((c) => (
+              <li key={c.cite}>
+                <CiteSource cite={c} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>
+  );
+}
+
+/** An inline [label] citation: links to the section in-app (Standard Specs) or to the source
+ *  manual's PDF at the right page (other manuals). */
+function CiteLink({ cite }: { cite: Citation }) {
+  const label = `[${cite.cite}]`;
+  const title = `${cite.source} (${cite.sourceId})${cite.inApp ? "" : `, p.${cite.page}`}`;
+  const cls = "font-mono text-accent hover:underline";
+  return cite.inApp ? (
+    <Link to={`/section/${cite.ref}`} className={cls} title={title}>
+      {label}
+    </Link>
+  ) : (
+    <a href={citationHref(cite)} target="_blank" rel="noreferrer" className={cls} title={title}>
+      {label}
+    </a>
+  );
+}
+
+/** One row in the Sources list: the label and the manual it came from, linked. */
+function CiteSource({ cite }: { cite: Citation }) {
+  const where = cite.inApp ? "" : `, p.${cite.page}`;
+  const inner = (
+    <>
+      <span className="font-mono font-semibold text-accent">{cite.cite}</span>
+      <span className="text-muted">
+        {" · "}
+        {cite.source} ({cite.sourceId}){where}
+      </span>
+      {!cite.inApp && <span className="text-faint"> ↗</span>}
+    </>
+  );
+  const cls = "text-xs leading-5 hover:underline";
+  return cite.inApp ? (
+    <Link to={`/section/${cite.ref}`} className={cls}>
+      {inner}
+    </Link>
+  ) : (
+    <a href={citationHref(cite)} target="_blank" rel="noreferrer" className={cls}>
+      {inner}
+    </a>
   );
 }
 
@@ -159,14 +205,15 @@ function ConfidenceBadge({ level }: { level: "low" | "medium" | "high" }) {
 }
 
 function Segment({ seg }: { seg: AnswerSegment }) {
-  if ("cite" in seg) {
-    return (
-      <Link to={`/section/${seg.cite}`} className="font-mono text-accent hover:underline">
-        [{seg.cite}]
-      </Link>
-    );
-  }
+  if ("cite" in seg) return <CiteLink cite={seg.cite} />;
   return <>{seg.text}</>;
+}
+
+/** Distinct citations by their readable label — several numbered excerpts can share one
+ *  section, so the Sources list shows each section once. */
+function uniqueByCite(citations: Citation[]): Citation[] {
+  const seen = new Set<string>();
+  return citations.filter((c) => (seen.has(c.cite) ? false : (seen.add(c.cite), true)));
 }
 
 function RelevantSections({ matches }: { matches: IndexEntry[] }) {

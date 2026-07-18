@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history requirements app-data embeddings test test-all lint fmt clean publish deploy eval
+.PHONY: help corpus parse history requirements app-data manuals embeddings test test-all lint fmt clean publish deploy eval
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -34,6 +34,10 @@ requirements: parse  ## Extract every "shall/must" requirement from the current 
 app-data: history requirements  ## Emit the web app's data (app/public/data/) from the pipeline
 	$(PY) pipeline/build_app_data.py pipeline/out pipeline/history.json pipeline/requirements.json app/public/data
 
+manuals: app-data  ## Download + ingest the extra WSDOT manuals into the Ask corpus (MANUALS="CM TM" to subset)
+	$(PY) pipeline/build_manuals.py
+	$(PY) pipeline/build_ask_corpus.py app/public/data pipeline/manuals-out
+
 embeddings: app-data  ## Semantic-search embeddings + self-hosted model (needs: cd app && npm install)
 	cd app && npm run embed
 
@@ -59,6 +63,9 @@ publish:  ## Build the deployable site (app/dist) — CLEARED states only, never
 	@# can never end up in dist/. (Rebuild it for the local demo with build_state --allow-uncleared.)
 	rm -rf app/public/data/nd
 	$(MAKE) app-data
+	@# Merge any already-ingested manuals (pipeline/manuals-out/) back into the Ask corpus that
+	@# app-data just rewrote with Standard Specs only. No re-download; run `make manuals` to add more.
+	$(PY) pipeline/build_ask_corpus.py app/public/data pipeline/manuals-out
 	@# For semantic search parity, run `make embeddings` before this; it degrades to keyword
 	@# search otherwise. build_state.py refuses uncleared states, so only public data is bundled.
 	cd app && npm run build

@@ -15,19 +15,22 @@ const INPUT_PER_MTOK = 1.0;
 const OUTPUT_PER_MTOK = 5.0;
 
 export const SYSTEM_PROMPT = [
-  "You answer questions about the WSDOT Standard Specifications (M 41-10) using ONLY the",
-  "numbered specification sections provided in the user message. Rules:",
-  "- Base every statement solely on the provided sections. Never use outside knowledge.",
-  "- Cite the section you rely on inline, in square brackets, e.g. [1-09.7]. Cite often —",
-  "  every factual claim must carry at least one citation to a supplied section.",
-  "- If the provided sections do not contain the answer, say so plainly in `answer` (e.g.",
-  '  "I could not find that in the provided sections") and set confidence to "low".',
-  "- Put what the sections do NOT establish, or where the reader must verify against the",
-  "  full manual, in `caveats` — never bluff to fill a gap.",
-  "- Set `confidence`: high when the sections answer the question directly and completely;",
-  "  medium when they answer it partially or by inference; low when support is thin.",
-  "- Be concise and precise. This is a reference, not a chat. Do not speculate.",
-  "- Respond by calling the submit_answer tool. You are unofficial and advisory.",
+  "You answer questions about the WSDOT manuals (the Standard Specifications and the core",
+  "construction/engineering manuals) using ONLY the excerpts provided in the user message,",
+  "each labelled with its source manual and page. Rules:",
+  "- Base every statement solely on the provided excerpts. Never use outside knowledge.",
+  "- Cite the excerpt you rely on inline, in square brackets, by its NUMBER, e.g. [1] or [3].",
+  "  Cite often — every factual claim must carry at least one citation. When it aids clarity,",
+  '  also name the manual in prose (e.g. "the Construction Manual requires...").',
+  "- Different manuals can conflict or address the same topic differently; attribute claims",
+  "  to the manual they come from rather than blending them.",
+  "- If the excerpts do not contain the answer, say so plainly in `answer` and set",
+  '  confidence to "low". Put what the excerpts do NOT establish, or where the reader must',
+  "  verify against the full manual, in `caveats` — never bluff to fill a gap.",
+  "- Set `confidence`: high when the excerpts answer the question directly and completely;",
+  "  medium when partially or by inference; low when support is thin.",
+  "- Be concise and precise. This is a reference, not a chat. Respond by calling the",
+  "  submit_answer tool. You are unofficial and advisory.",
 ].join("\n");
 
 /** One structured, grounded answer, emitted via the submit_answer tool. */
@@ -46,8 +49,8 @@ export interface StructuredAnswer {
 export const SUBMIT_ANSWER_TOOL: Anthropic.Tool = {
   name: "submit_answer",
   description:
-    "Answer the question using ONLY the supplied specification sections. Cite each section " +
-    "you rely on inline in `answer` as [section-number], and list those numbers in " +
+    "Answer the question using ONLY the supplied numbered manual excerpts. Cite each excerpt " +
+    "you rely on inline in `answer` by its bracketed number, and list those numbers in " +
     "`citations`. State uncertainty in `caveats` rather than guessing.",
   input_schema: {
     type: "object",
@@ -56,12 +59,12 @@ export const SUBMIT_ANSWER_TOOL: Anthropic.Tool = {
       answer: {
         type: "string",
         minLength: 1,
-        description: "The answer, with inline [1-09.7]-style citations to supplied sections.",
+        description: "The answer, with inline citations by excerpt number, e.g. [1] or [3].",
       },
       citations: {
         type: "array",
-        items: { type: "string" },
-        description: "Section numbers relied upon, e.g. [\"1-09.7\", \"2-01.5\"].",
+        items: { type: "integer" },
+        description: "The excerpt numbers relied upon, e.g. [1, 3].",
       },
       confidence: { enum: ["low", "medium", "high"] },
       caveats: {
@@ -73,19 +76,32 @@ export const SUBMIT_ANSWER_TOOL: Anthropic.Tool = {
   },
 };
 
-/** Assemble the user message: the question, then the retrieved sections as evidence. */
+/** Assemble the user message: the question, then the retrieved excerpts NUMBERED [1]..[N],
+ *  each tagged with the manual and page it came from. Numbering (rather than asking the model
+ *  to reproduce labels like "CM p.363") is what makes citations reliable — the model only has
+ *  to echo a bracketed integer, which it does exactly. The number maps back to the source. */
 export function buildUserMessage(question: string, chunks: ScoredChunk[]): string {
   const evidence = chunks
-    .map((c) => `[${c.section}]\n${c.text}`)
+    .map((c, i) => {
+      const where = c.inApp
+        ? `${c.source} (${c.sourceId}), section ${c.cite}`
+        : `${c.source} (${c.sourceId}), p.${c.page}`;
+      return `[${i + 1}] ${where}\n${c.text}`;
+    })
     .join("\n\n---\n\n");
-  return `Question: ${question}\n\nSpecification sections:\n\n${evidence}`;
+  return (
+    `Question: ${question}\n\n` +
+    `Numbered excerpts from the WSDOT manuals — cite each one you rely on by its bracketed ` +
+    `number (e.g. [1], [3]):\n\n${evidence}`
+  );
 }
 
-/** Section numbers the model cited that were actually among the ones we supplied. */
-export function citedSections(answer: string, supplied: string[]): string[] {
+/** The excerpt numbers the model actually cited, restricted to ones we supplied (so a
+ *  hallucinated citation is dropped). `supplied` is the set of valid numbers as strings. */
+export function citedLabels(answer: string, supplied: string[]): string[] {
   const allowed = new Set(supplied);
   const cited = new Set<string>();
-  for (const m of answer.matchAll(/\[(\d-\d{2}(?:\.\d+)?(?:\([0-9A-Za-z]+\))*[A-Z]?)\]/g)) {
+  for (const m of answer.matchAll(/\[(\d+)\]/g)) {
     if (allowed.has(m[1]!)) cited.add(m[1]!);
   }
   return [...cited];

@@ -36,6 +36,7 @@ from difflib import SequenceMatcher
 # on the path before importing the one helper shared between the two build steps.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_history import clean_title
+from manuals import STANDARD_SPECS
 
 # The nine divisions are part of the spec's structure, not something to infer.
 DIVISION_TITLES = {
@@ -137,19 +138,33 @@ def chunk_text(text, limit=CHUNK_MAX):
 
 
 def emit_ask_corpus(current, out_dir):
-    """The retrieval corpus the Ask-the-Specs Worker grounds its answers on.
+    """The Standard Specifications' contribution to the Ask retrieval corpus.
 
-    One flat file of {section, text} chunks for every non-vacant section in the current
-    edition. The Worker fetches it once, retrieves the relevant chunks per question, and
-    never sees anything but public specification text.
+    Emits source-tagged chunks (see pipeline/manuals.py for the shape) for every non-vacant
+    current-edition section, so an Ask answer can cite "Standard Specifications 1-09.7" and
+    link straight to that section in the app. This is the base corpus; build_ask_corpus.py
+    merges in the other manuals' chunks. The Worker fetches the corpus once and never sees
+    anything but public specification text.
     """
+    ss = STANDARD_SPECS
     corpus = []
     for num, section in current.items():
         if section.get("vacant") or len(section["text"]) < 40:
             continue
         for piece in chunk_text(section["text"]):
             if len(piece) >= 40 and is_prose(piece):
-                corpus.append({"section": num, "text": piece})
+                corpus.append(
+                    {
+                        "text": piece,
+                        "source": ss.title,
+                        "sourceId": ss.m_number,
+                        "cite": num,  # the section number; the model cites it, the UI links it
+                        "ref": num,
+                        "page": section["page"],
+                        "url": ss.url,
+                        "inApp": True,  # links to /section/<num> in the app, not an external PDF
+                    }
+                )
     _write(os.path.join(out_dir, "ask-corpus.json"), corpus)
     return len(corpus)
 
