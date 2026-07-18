@@ -127,14 +127,26 @@ def slice_sections(lines, accepted, division_of):
 
         # Title shares the heading line (2000-2018) or follows on the next (2020-2026).
         title, body_start = inline_title, i + 1
-        if not title:
+        head_body = ""
+        if title:
+            # The number and title were in the heading line's first span, so anything else on
+            # that physical line (lines[i]["rest"]) is the section's OPENING BODY, not the
+            # title — e.g. PennDOT sets "1017.1  DESCRIPTION" in one span and "—This work is…"
+            # in the next, on the same line. Without this it is silently dropped (leaving the
+            # section empty or starting mid-sentence). WSDOT and the other states put no body
+            # in `rest`, so this adds nothing for them.
+            head_body = lines[i]["rest"]
+        else:
             title = lines[i]["rest"]
-        if not title and i + 1 < len(lines):
-            title = lines[i + 1]["full"]
-            body_start = i + 2
+            if not title and i + 1 < len(lines):
+                title = lines[i + 1]["full"]
+                body_start = i + 2
 
         body_end = accepted[n + 1][0] if n + 1 < len(accepted) else len(lines)
-        text = "\n".join(ln["full"] for ln in lines[body_start:body_end]).strip()
+        parts = ([head_body] if head_body else []) + [
+            ln["full"] for ln in lines[body_start:body_end]
+        ]
+        text = "\n".join(parts).strip()
 
         sections[num] = {
             "num": num,
