@@ -35,7 +35,9 @@ wrong" becomes a permanent regression test. When you add a case, confirm the exp
 against the section index (the eval itself will tell you if your label is wrong — that is how
 three labels in the first run got corrected).
 
-## Baseline (first run, 16 answerable + 3 out-of-scope cases)
+## Baseline
+
+BM25-only (16 answerable + 3 out-of-scope, single-manual corpus):
 
 | Metric | Result |
 |---|---|
@@ -44,14 +46,25 @@ three labels in the first run got corrected).
 | Citation accuracy (end-to-end) | 94% (15/16) |
 | Refusal on out-of-scope | 67% (2/3) |
 
-Known gaps this surfaced, worth tracking:
+After adding **hybrid retrieval** (BM25 + semantic via Workers AI + Vectorize) over the
+7-manual corpus:
 
-- **`materials-on-hand`** — BM25 misses §1-09.8 because the question ("materials delivered but
-  not yet installed") shares no rare terms with the section ("Payment for Material on Hand").
-  A classic lexical vocab gap; the Worker correctly returns **low confidence** rather than a
-  confident wrong answer. This is the strongest argument for adding semantic retrieval later.
-- **`structural-concrete`** — §6-02 sits at lexical rank 11 but the **reranker recovers it**
-  into the final six; a clean demonstration of why the rerank stage exists.
-- **`oos-human-remains`** — answered confidently instead of refusing, because WSDOT *does*
-  address archaeological/cultural finds (§1-07.16). The label, not the model, is likely wrong
-  here — a good reminder to verify gold against the manual.
+| Metric | Result | vs BM25-only |
+|---|---|---|
+| Citation accuracy (end-to-end) | 94% (15/16) | same top-line, but every answerable case is now **high** confidence, and answers cite across multiple manuals |
+| Refusal on out-of-scope | 33% (1/3) | **down** — see the tradeoff below |
+
+What the runs surfaced, worth tracking:
+
+- **`materials-on-hand` — fixed by semantic.** BM25 missed §1-09.8 (the question shares no
+  rare terms with "Payment for Material on Hand"); semantic retrieval finds it, and the answer
+  went from low-confidence-refusal to a high-confidence citation of §1-09.8. This is the win
+  hybrid retrieval was added for.
+- **Out-of-scope refusal regressed (the semantic tradeoff).** BM25 returns *nothing* for a
+  truly foreign question, which the Worker reads as "not in the manuals". Semantic retrieval
+  always returns nearest neighbors, so "will it rain next Tuesday?" now retrieves
+  weather-suspension chunks and gets answered confidently. The fix to try next: a **similarity
+  floor** on the top semantic score — below it, treat the question as out-of-scope. The eval's
+  `oos-*` cases are how you'd measure that change.
+- **`structural-concrete`** — §6-02 sits at lexical rank 11 but the reranker (and now semantic)
+  surfaces it; a clean demonstration of why the later stages exist.
