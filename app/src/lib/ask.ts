@@ -8,11 +8,17 @@
 /** The deployed Worker URL, or undefined when the AI feature isn't configured. */
 export const ASK_URL = import.meta.env.VITE_ASK_URL as string | undefined;
 
+export type Confidence = "low" | "medium" | "high";
+
 export interface AskAnswer {
   kind: "answer";
   answer: string;
   citations: string[];
   sections: string[];
+  /** How well the retrieved sections support the answer (from the Worker). */
+  confidence?: Confidence;
+  /** What the sections don't establish, or where to verify (from the Worker). */
+  caveats: string[];
 }
 export type AskResult =
   | AskAnswer
@@ -31,11 +37,17 @@ export async function askWorker(question: string): Promise<AskResult> {
     const data = await res.json();
     if (data.capped) return { kind: "capped" };
     if (typeof data.answer === "string") {
+      const confidence: Confidence | undefined =
+        data.confidence === "low" || data.confidence === "medium" || data.confidence === "high"
+          ? data.confidence
+          : undefined;
       return {
         kind: "answer",
         answer: data.answer,
         citations: data.citations ?? [],
         sections: data.sections ?? [],
+        ...(confidence ? { confidence } : {}),
+        caveats: Array.isArray(data.caveats) ? data.caveats : [],
       };
     }
     return { kind: "unavailable", reason: "unexpected response" };

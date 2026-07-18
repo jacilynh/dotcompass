@@ -21,13 +21,16 @@ import Anthropic from "@anthropic-ai/sdk";
 import {
   MAX_TOKENS,
   MODEL,
+  SUBMIT_ANSWER_TOOL,
   SYSTEM_PROMPT,
+  type StructuredAnswer,
   buildUserMessage,
   citedSections,
   estimateCostUsd,
   validateQuestion,
 } from "./rag";
-import { type Chunk, type PreparedChunk, prepare, retrieve } from "./retrieval";
+import { rerank } from "./rerank";
+import { type Chunk, type PreparedChunk, type ScoredChunk, prepare, retrieve } from "./retrieval";
 
 interface Env {
   ANTHROPIC_API_KEY: string; // secret: wrangler secret put ANTHROPIC_API_KEY
@@ -38,7 +41,8 @@ interface Env {
   MONTHLY_CAP_USD: string; // hard spend ceiling, e.g. "30"
 }
 
-const TOP_K = 8; // sections given to the model as evidence
+const CANDIDATE_K = 24; // wide BM25 recall set fed to the reranker
+const FINAL_K = 6; // sections kept after reranking and given to the answer step
 
 // Cached across requests within a warm isolate — the corpus is fetched at most once per
 // isolate, not per request. A promise guards concurrent first requests.
@@ -91,6 +95,53 @@ function json(body: unknown, status: number, headers: Record<string, string>): R
   });
 }
 
+/** One structured-answer call via the submit_answer tool. Returns the parsed answer + cost. */
+async function generateAnswer(
+  client: Anthropic,
+  question: string,
+  chunks: ScoredChunk[],
+): Promise<{ answer: StructuredAnswer; cost: number }> {
+  const message = await client.messages.create({
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    system: SYSTEM_PROMPT,
+    tools: [SUBMIT_ANSWER_TOOL],
+    tool_choice: { type: "tool", name: "submit_answer" },
+    messages: [{ role: "user", content: buildUserMessage(question, chunks) }],
+  });
+  const cost = estimateCostUsd(message.usage.input_tokens, message.usage.output_tokens);
+  const tool = message.content.find((b) => b.type === "tool_use");
+  if (!tool || tool.type !== "tool_use") throw new Error("submit_answer was not called");
+  const out = tool.input as Partial<StructuredAnswer>;
+  const confidence =
+    out.confidence === "high" || out.confidence === "medium" || out.confidence === "low"
+      ? out.confidence
+      : "medium";
+  return {
+    cost,
+    answer: {
+      answer: typeof out.answer === "string" ? out.answer : "",
+      citations: Array.isArray(out.citations)
+        ? out.citations.filter((c): c is string => typeof c === "string")
+        : [],
+      confidence,
+      caveats: Array.isArray(out.caveats)
+        ? out.caveats.filter((c): c is string => typeof c === "string")
+        : [],
+    },
+  };
+}
+
+/** The sections the answer actually grounds in: inline [x] markers plus the tool's
+ *  `citations`, both filtered to the sections we supplied (so a hallucinated number is
+ *  dropped, never surfaced as a citation). */
+function resolveCitations(out: StructuredAnswer, supplied: string[]): string[] {
+  const allowed = new Set(supplied);
+  const set = new Set<string>(citedSections(out.answer, supplied));
+  for (const c of out.citations) if (allowed.has(c)) set.add(c);
+  return [...set];
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const headers = cors(env.ALLOWED_ORIGIN);
@@ -118,7 +169,7 @@ export default {
       }
     }
 
-    // 3. Retrieve the most relevant sections. No match -> a grounded "not found", and no
+    // 3. Retrieve a WIDE BM25 candidate set. No match -> a grounded "not found", and no
     //    model call at all (retrieval is free; generation is not).
     let corpus: PreparedChunk[];
     try {
@@ -126,10 +177,16 @@ export default {
     } catch {
       return json({ error: "corpus unavailable" }, 503, headers);
     }
-    const chunks = retrieve(corpus, question, TOP_K);
-    if (chunks.length === 0) {
+    const candidates = retrieve(corpus, question, CANDIDATE_K);
+    if (candidates.length === 0) {
       return json(
-        { answer: "I could not find anything about that in the specifications.", citations: [], sections: [] },
+        {
+          answer: "I could not find anything about that in the specifications.",
+          citations: [],
+          sections: [],
+          confidence: "low",
+          caveats: [],
+        },
         200,
         headers,
       );
@@ -141,37 +198,61 @@ export default {
       return json({ capped: true }, 200, headers);
     }
 
-    // 5. Ask Claude to answer using only the retrieved sections.
-    const supplied = [...new Set(chunks.map((c) => c.section))];
-    let answer: string;
-    let cost = 0;
+    // 5. Rerank the candidates to the few most relevant, then answer using ONLY those, via
+    //    the submit_answer tool. Retry once if nothing is cited; downgrade if it still
+    //    isn't. Every model call is Haiku and counts toward the spend cap.
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    let totalCost = 0;
     try {
-      const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-      const message = await client.messages.create({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: buildUserMessage(question, chunks) }],
-      });
-      answer = message.content
-        .filter((b): b is Anthropic.TextBlock => b.type === "text")
-        .map((b) => b.text)
-        .join("")
-        .trim();
-      cost = estimateCostUsd(message.usage.input_tokens, message.usage.output_tokens);
+      const reranked = await rerank(client, question, candidates, FINAL_K);
+      totalCost += reranked.cost;
+      const chunks: ScoredChunk[] = reranked.chunks;
+      const supplied = [...new Set(chunks.map((c) => c.section))];
+
+      const first = await generateAnswer(client, question, chunks);
+      totalCost += first.cost;
+      let out = first.answer;
+      let citations = resolveCitations(out, supplied);
+
+      // Citation retry: a fluent answer citing nothing usually means the prompt slipped.
+      if (citations.length === 0) {
+        const retry = await generateAnswer(client, question, chunks);
+        totalCost += retry.cost;
+        out = retry.answer;
+        citations = resolveCitations(out, supplied);
+      }
+      // Still ungrounded -> downgrade and say so, rather than assert something uncited.
+      if (citations.length === 0) {
+        out = {
+          ...out,
+          confidence: "low",
+          caveats: [
+            ...out.caveats,
+            "No part of this answer could be tied to a specific section — treat it as a lead, not an answer, and verify against the manual.",
+          ],
+        };
+      }
+
+      // 6. Record spend, then return the grounded answer with confidence + caveats.
+      await recordSpend(env, totalCost);
+      return json(
+        {
+          answer: out.answer,
+          citations,
+          sections: supplied,
+          confidence: out.confidence,
+          caveats: out.caveats,
+          model: MODEL,
+        },
+        200,
+        headers,
+      );
     } catch (err) {
-      // Never fail silently: log server-side for debugging (wrangler tail) and tell the
-      // client so it can fall back to keyword search — without leaking internals.
+      // Never fail silently: log for debugging (wrangler tail), charge for any calls that
+      // did run, and tell the client so it can fall back to keyword search.
       console.error("generation failed:", err);
+      await recordSpend(env, totalCost);
       return json({ error: "generation failed" }, 502, headers);
     }
-
-    // 6. Record what we spent, then answer with citations the client can link.
-    await recordSpend(env, cost);
-    return json(
-      { answer, citations: citedSections(answer, supplied), sections: supplied, model: MODEL },
-      200,
-      headers,
-    );
   },
 };

@@ -100,11 +100,28 @@ export function Ask() {
 function AnswerCard({ result }: { result: Extract<AskResult, { kind: "answer" }> }) {
   return (
     <div className="rounded-xl border border-border bg-surface p-5">
+      {result.confidence && (
+        <div className="mb-3 flex justify-end">
+          <ConfidenceBadge level={result.confidence} />
+        </div>
+      )}
       <p className="prose-spec whitespace-pre-wrap leading-7">
         {splitCitations(result.answer).map((seg, i) => (
           <Segment key={i} seg={seg} />
         ))}
       </p>
+
+      {result.caveats.length > 0 && (
+        <div className="mt-4 rounded-lg border border-vacated/30 bg-vacated/5 p-3">
+          <span className="text-xs font-medium uppercase tracking-wider text-vacated">Caveats</span>
+          <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-muted">
+            {result.caveats.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {result.citations.length > 0 && (
         <div className="mt-4 border-t border-border pt-3">
           <span className="text-xs font-medium uppercase tracking-wider text-faint">Sources</span>
@@ -122,6 +139,22 @@ function AnswerCard({ result }: { result: Extract<AskResult, { kind: "answer" }>
         </div>
       )}
     </div>
+  );
+}
+
+function ConfidenceBadge({ level }: { level: "low" | "medium" | "high" }) {
+  const styles = {
+    high: "bg-accent/15 text-accent",
+    medium: "bg-raised text-muted",
+    low: "bg-vacated/15 text-vacated",
+  } as const;
+  return (
+    <span
+      className={`rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${styles[level]}`}
+      title="How well the retrieved specification sections support this answer"
+    >
+      {level} confidence
+    </span>
   );
 }
 
