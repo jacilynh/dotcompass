@@ -113,7 +113,7 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 1,
-    "stage": "1-parse",
+    "stage": "2-qa",
     "capability": "P0",
     "reuse": {
       "status": "unstated",
@@ -130,11 +130,11 @@
       "path": "corpus/pa/current.pdf"
     },
     "quirks": [
-      "parse proven (1,430 sections); quirk: header-only lettered subs"
+      "STAGE 2 PASS 20/20 after slice_sections engine fix: 1,430 sections, 0% empty, 0% mid-sentence start (was 7.1% / 29%)",
+      "intentionally flat NNN.N nesting: lettered (a)/(b) and numbered 1./2. subs are folded into the parent section, not split out (mirrors PennDOT running-header citation style)",
+      "cosmetic: the title/body em-dash lands in either the title or the body head for structurally identical layouts — no content lost or duplicated"
     ],
-    "blockers": [
-      "STAGE 2 FAIL: engine drops the first sentence when body shares the heading's physical line (em-dash style). 102/1430 sections empty, 29% start mid-sentence. Needs slice_sections fix."
-    ]
+    "blockers": []
   },
   "co": {
     "state": "Colorado",
