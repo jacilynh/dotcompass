@@ -42,4 +42,9 @@ WASHINGTON = StateDescriptor(
         "Washington State DOT Standard Specifications for Road, Bridge, and Municipal "
         "Construction (M 41-10). Unofficial copy; not affiliated with or endorsed by WSDOT."
     ),
+    requirements=True,
+    ask=True,
+    semantic=True,
+    corpus_label="WSDOT Standard Specifications · M 41-10",
+    demo_section="1-09.7",
 )

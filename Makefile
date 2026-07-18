@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history requirements app-data manuals standard-plans index-ask embeddings test test-all lint fmt clean publish deploy eval
+.PHONY: help corpus parse history requirements app-data app-states manuals standard-plans index-ask embeddings test test-all lint fmt clean publish deploy eval
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -33,6 +33,9 @@ requirements: parse  ## Extract every "shall/must" requirement from the current 
 
 app-data: history requirements  ## Emit the web app's data (app/public/data/) from the pipeline
 	$(PY) pipeline/build_app_data.py pipeline/out pipeline/history.json pipeline/requirements.json app/public/data
+
+app-states:  ## Regenerate the app state registry (app/src/states.generated.ts) from the descriptors
+	$(PY) pipeline/build_app_states.py
 
 manuals: app-data  ## Download + ingest the extra WSDOT manuals into the Ask corpus (MANUALS="CM TM" to subset)
 	$(PY) pipeline/build_manuals.py
@@ -78,6 +81,7 @@ publish:  ## Build the deployable site (app/dist) — CLEARED states only, never
 	$(PY) pipeline/build_ask_corpus.py app/public/data pipeline/manuals-out
 	@# For semantic search parity, run `make embeddings` before this; it degrades to keyword
 	@# search otherwise. build_state.py refuses uncleared states, so only public data is bundled.
+	$(PY) pipeline/build_app_states.py
 	cd app && npm run build
 	@echo "==> app/dist ready (cleared states only). Deploy with: make deploy"
 

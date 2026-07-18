@@ -27,39 +27,15 @@ export interface StateConfig {
   uncleared?: boolean; // reuse terms not cleared — local demo only, never published
 }
 
-const WASHINGTON: StateConfig = {
-  slug: "wa",
-  name: "Washington",
-  dot: "WSDOT",
-  dataBase: "data",
-  corpusLabel: "WSDOT Standard Specifications · M 41-10",
-  edition: 2026,
-  history: true,
-  requirements: true,
-  ask: true,
-  semantic: true,
-  demoSection: "1-09.7",
-};
+// The registry is generated from the pipeline state descriptors (pipeline/build_app_states.py),
+// so adding a state is configuration, not a code edit here. See docs/national/ADR-multi-state-app.md.
+import { ALL_STATES } from "./states.generated";
 
-const NORTH_DAKOTA: StateConfig = {
-  slug: "nd",
-  name: "North Dakota",
-  dot: "NDDOT",
-  dataBase: "data/nd",
-  corpusLabel: "NDDOT Standard Specifications for Road and Bridge Construction",
-  edition: 2025,
-  history: false, // single edition onboarded; AASHTO numbers aren't stable across editions
-  requirements: false,
-  ask: false,
-  semantic: false,
-  uncleared: true, // NDDOT reuse terms unstated — this state is a local demo only
-};
-
-// Uncleared states (reuse terms not cleared) appear only in a dev build — the local
-// two-state demo — never in a production build. This ties the switcher's visibility to the
-// reuse gate: a published site can only ever offer states whose text it is allowed to serve,
-// so there is no broken "NDDOT" option on dotcompass.dev and no reason for its data to ship.
-const ALL_STATES: StateConfig[] = [WASHINGTON, NORTH_DAKOTA];
+// Uncleared states (reuse terms not cleared) appear only in a dev build — the local demos —
+// never in a production build. This ties the switcher's visibility to the reuse gate: a
+// published site can only ever offer states whose text it is allowed to serve, so there is no
+// broken option on dotcompass.dev and no reason for an uncleared state's data to ship. This is
+// also what keeps a single production deploy small — it holds only cleared states.
 export const STATES: StateConfig[] = ALL_STATES.filter(
   (s) => import.meta.env.DEV || !s.uncleared,
 );

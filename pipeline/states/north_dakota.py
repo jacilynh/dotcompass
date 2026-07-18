@@ -42,4 +42,6 @@ NORTH_DAKOTA = StateDescriptor(
         "Unofficial copy; reuse terms unstated by NDDOT. Not affiliated with or endorsed "
         "by NDDOT."
     ),
+    corpus_label="NDDOT Standard Specifications for Road and Bridge Construction",
+    # requirements / ask / semantic default False — North Dakota is browse + search only.
 )

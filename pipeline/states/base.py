@@ -46,6 +46,14 @@ class StateDescriptor:
     divisions: tuple  # (Division, ...)
     source_url: str  # where the book was obtained (attribution / re-verification)
     source_note: str  # short provenance line shown in the UI
+    # App-facing display + feature flags. These drive the generated app registry
+    # (pipeline/build_app_states.py -> app/src/states.generated.ts), so the app never
+    # hand-maintains a per-state list — a state is added by writing this descriptor.
+    requirements: bool = False  # requirements explorer (needs requirements/*.json)
+    ask: bool = False  # Ask-the-Specs (needs an ask corpus + the Worker)
+    semantic: bool = False  # semantic search (needs precomputed embeddings)
+    corpus_label: str = ""  # Home eyebrow; falls back to "<DOT> Standard Specifications"
+    demo_section: str | None = None  # worked-example section on Home (history states only)
 
     def __post_init__(self):
         if self.reuse not in _REUSE_VALUES:
