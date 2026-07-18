@@ -132,7 +132,7 @@
     "quirks": [
       "STAGE 2 PASS 20/20 after slice_sections engine fix: 1,430 sections, 0% empty, 0% mid-sentence start (was 7.1% / 29%)",
       "intentionally flat NNN.N nesting: lettered (a)/(b) and numbered 1./2. subs are folded into the parent section, not split out (mirrors PennDOT running-header citation style)",
-      "cosmetic: the title/body em-dash lands in either the title or the body head for structurally identical layouts — no content lost or duplicated"
+      "cosmetic: the title/body em-dash lands in either the title or the body head for structurally identical layouts \u2014 no content lost or duplicated"
     ],
     "blockers": []
   },
@@ -141,8 +141,8 @@
     "dot": "CDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -152,10 +152,12 @@
     "live": false,
     "source": {
       "url": "https://www.codot.gov/business/designsupport/cdot-construction-specifications/2025-construction-specifications/specs-book/2025-cdot-specs-book.pdf",
-      "edition": "2025 Standard Specifications for Road and Bridge Construction, Version 1 (mandatory for projects advertised on/after July 1, 2025; supersedes the 2023 edition, which had been mandatory since October 1, 2023)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2025",
+      "sha256": "64edf926b51959ccd08dac28da0606a8b1dfc95a313204a697ffb4908e512d7d",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/co/current.pdf",
+      "pages": 967
     },
     "quirks": [],
     "blockers": []
@@ -164,9 +166,9 @@
     "state": "Florida",
     "dot": "FDOT",
     "tier": 1,
-    "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "cluster": "florida_dash_tbd",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -176,13 +178,17 @@
     "live": false,
     "source": {
       "url": "https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/specifications/by-year/fy-2026-27/ebook/fy-2026-27-ebook-compressed.pdf?sfvrsn=be872b87_2",
-      "edition": "FY 2026-27 Standard Specifications for Road and Bridge Construction (effective 07/01/2026)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "FY 2026-27",
+      "sha256": "db936b284671432e60751859f61bda1440f6b0a163aed9de182fc778be1ddf33",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/fl/current.pdf",
+      "pages": 1339
     },
     "quirks": [],
-    "blockers": []
+    "blockers": [
+      "numbering is FDOT dash scheme (e.g. 105-8), NOT aashto_decimal; supervisor builds a new SpecProfile at Stage 1 (Opus-only, guardrail #6)"
+    ]
   },
   "id": {
     "state": "Idaho",
@@ -216,8 +222,8 @@
     "dot": "INDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "all_rights_reserved",
@@ -227,21 +233,25 @@
     "live": false,
     "source": {
       "url": "https://www.in.gov/dot/div/contracts/standards/book/sep25/2026%20Standard%20Specifications.pdf",
-      "edition": "2026 (effective Sept 1, 2025 \u2013 Aug 31, 2027)",
-      "sha256": null,
-      "verified": false,
-      "format": "per-division-pdf"
+      "edition": "2026",
+      "sha256": "29c0df2d22ccc7c5a742d6fbea36290acbca3e4a901f5598f42dc63d708ffb8c",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/in/current.pdf",
+      "pages": 1328
     },
     "quirks": [],
-    "blockers": []
+    "blockers": [
+      "catalog said per-division; the DOT's own URL serves a single combined 1,328p 2026 book \u2014 single-PDF path applies"
+    ]
   },
   "me": {
     "state": "Maine",
     "dot": "MaineDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -251,10 +261,12 @@
     "live": false,
     "source": {
       "url": "https://www.maine.gov/dot/sites/maine.gov.dot/files/inline-files/MaineDOT_Standard_Specifications_March_2026.pdf",
-      "edition": "March 2026 Edition (required for contracts advertised after August 1, 2026; purple cover, white/gold lettering). The March 2020 Edition (red cover) remains in effect for contracts advertised before that date.",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "March 2026",
+      "sha256": "e4db417ee339c5be61dae5ad35aa2fa2087f4f2135490df67ebe060e143d879c",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/me/current.pdf",
+      "pages": 944
     },
     "quirks": [],
     "blockers": []
@@ -384,8 +396,8 @@
     "dot": "TDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -395,10 +407,12 @@
     "live": false,
     "source": {
       "url": "https://www.tn.gov/content/dam/tn/tdot/construction/2026-standard-specifications/April_1_2026_Standard_Specifications.pdf",
-      "edition": "April 1, 2026 Standard Specifications for Road and Bridge Construction (effective for contracts let beginning May 8, 2026 bid letting)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "April 1, 2026",
+      "sha256": "958a576408c7b76d537da6f3bb78b946167a1114c394ae44fbc6da3ae9981f27",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/tn/current.pdf",
+      "pages": 1078
     },
     "quirks": [],
     "blockers": []
@@ -408,8 +422,8 @@
     "dot": "VDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 2,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -419,10 +433,12 @@
     "live": false,
     "source": {
       "url": "https://www.vdot.virginia.gov/media/vdotvirginiagov/doing-business/technical-guidance-and-support/technical-guidance-documents/construction/VDOT_2020_RB_Specs_acc071522.pdf",
-      "edition": "2020 Road and Bridge Specifications (effective for advertisements from July 2020 onward), with a 2022 Supplement issued covering revisions through December 31, 2021. A \"Latest Specs\" zip archive is kept current with individually revised pages/divisions.",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2020 Road and Bridge",
+      "sha256": "cdb28c0980cf92492b868f6fd9baffce42c2b44cc406ed4e6e6b5a30355593a7",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/va/current.pdf",
+      "pages": 1065
     },
     "quirks": [],
     "blockers": []
