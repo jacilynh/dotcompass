@@ -24,6 +24,17 @@ binding = "SPEND"
 id = "732f846b2a73483ea28f93231a09581f"
 preview_id = "6188e8139de74a38bea90f10847cb8a3"
 
+# Semantic retrieval: Workers AI embeds the question; Vectorize holds an embedding of every
+# corpus chunk and finds the nearest ones. Fused with BM25 (hybrid retrieval). Both are
+# Cloudflare-native — no external embedding vendor. Index created with:
+#   wrangler vectorize create dotcompass-ask --dimensions=768 --metric=cosine
+[ai]
+binding = "AI"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "dotcompass-ask"
+
 # Native per-IP rate limiting. Optional — delete this block if your account lacks the
 # binding; the Worker skips rate limiting gracefully when it is absent.
 [[unsafe.bindings]]

@@ -4,7 +4,7 @@ import { rerank } from "./rerank";
 import type { ScoredChunk } from "./retrieval";
 
 function chunk(cite: string, text: string, score: number): ScoredChunk {
-  return { text, cite, ref: cite, source: "Test", sourceId: "M 0", page: 1, url: "", inApp: true, score };
+  return { text, cite, ref: cite, source: "Test", sourceId: "M 0", page: 1, url: "", inApp: true, score, idx: 0 };
 }
 
 const chunks: ScoredChunk[] = [chunk("1-01.1", "alpha", 3), chunk("1-02.1", "bravo", 2)];

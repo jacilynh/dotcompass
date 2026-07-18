@@ -14,6 +14,7 @@ function chunk(cite: string, text: string, over: Partial<ScoredChunk> = {}): Sco
     url: "",
     inApp: true,
     score: 2,
+    idx: 0,
     ...over,
   };
 }

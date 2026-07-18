@@ -32,10 +32,14 @@ export interface PreparedChunk {
   tf: Map<string, number>;
   /** Token count (document length), for BM25 length normalization. */
   len: number;
+  /** Position in the corpus — the stable id shared with the Vectorize index, so a semantic
+   *  hit (which returns this id) and a lexical hit fuse on the same key. */
+  idx: number;
 }
 
 export interface ScoredChunk extends Chunk {
   score: number;
+  idx: number;
 }
 
 // BM25 parameters. k1 controls term-frequency saturation; b controls length normalization.
@@ -58,11 +62,11 @@ export function tokenize(text: string): string[] {
 
 /** Precompute each chunk's term frequencies and length once, at corpus load. */
 export function prepare(corpus: Chunk[]): PreparedChunk[] {
-  return corpus.map((chunk) => {
+  return corpus.map((chunk, idx) => {
     const tokens = tokenize(chunk.text);
     const tf = new Map<string, number>();
     for (const t of tokens) tf.set(t, (tf.get(t) ?? 0) + 1);
-    return { chunk, tf, len: tokens.length };
+    return { chunk, tf, len: tokens.length, idx };
   });
 }
 
@@ -97,7 +101,7 @@ export function retrieve(prepared: PreparedChunk[], question: string, k: number)
       const denom = tf + K1 * (1 - B + (B * p.len) / avgdl);
       score += (idf.get(term) ?? 0) * (norm / denom);
     }
-    if (score > 0) scored.push({ ...p.chunk, score });
+    if (score > 0) scored.push({ ...p.chunk, score, idx: p.idx });
   }
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, k);

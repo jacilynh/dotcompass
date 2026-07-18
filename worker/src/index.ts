@@ -31,14 +31,16 @@ import {
 } from "./rag";
 import { rerank } from "./rerank";
 import { type Chunk, type PreparedChunk, type ScoredChunk, prepare, retrieve } from "./retrieval";
+import { type SemanticEnv, embedQuery, fuse, semanticSearch } from "./semantic";
 
-interface Env {
+interface Env extends SemanticEnv {
   ANTHROPIC_API_KEY: string; // secret: wrangler secret put ANTHROPIC_API_KEY
   SPEND: KVNamespace; // monthly cost counter
   RATE_LIMITER?: RateLimit; // optional native rate-limit binding
   CORPUS_URL: string; // where to fetch ask-corpus.json
   ALLOWED_ORIGIN: string; // the site origin permitted to call this Worker
   MONTHLY_CAP_USD: string; // hard spend ceiling, e.g. "30"
+  // AI + VECTORIZE bindings come from SemanticEnv (semantic retrieval).
 }
 
 const CANDIDATE_K = 24; // wide BM25 recall set fed to the reranker
@@ -180,15 +182,21 @@ export default {
       }
     }
 
-    // 3. Retrieve a WIDE BM25 candidate set. No match -> a grounded "not found", and no
-    //    model call at all (retrieval is free; generation is not).
+    // 3. HYBRID retrieval: BM25 (exact terms) fused with semantic (meaning) via Workers AI +
+    //    Vectorize. Retrieval is free — no Anthropic call yet; an empty result is a grounded
+    //    "not found". Semantic fails safe: if it errors, we proceed on BM25 alone.
     let corpus: PreparedChunk[];
     try {
       corpus = await loadCorpus(env.CORPUS_URL);
     } catch {
       return json({ error: "corpus unavailable" }, 503, headers);
     }
-    const candidates = retrieve(corpus, question, CANDIDATE_K);
+    const lexical = retrieve(corpus, question, CANDIDATE_K);
+    const queryVector = await embedQuery(env, question);
+    const semantic = queryVector
+      ? await semanticSearch(env, queryVector, corpus, CANDIDATE_K)
+      : [];
+    const candidates = semantic.length > 0 ? fuse([lexical, semantic], CANDIDATE_K) : lexical;
     if (candidates.length === 0) {
       return json(
         {

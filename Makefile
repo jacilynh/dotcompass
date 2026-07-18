@@ -1,4 +1,4 @@
-.PHONY: help corpus parse history requirements app-data manuals embeddings test test-all lint fmt clean publish deploy eval
+.PHONY: help corpus parse history requirements app-data manuals index-ask embeddings test test-all lint fmt clean publish deploy eval
 .DEFAULT_GOAL := help
 
 PY := uv run --quiet --with pymupdf --with pytest --with ruff python3
@@ -37,6 +37,12 @@ app-data: history requirements  ## Emit the web app's data (app/public/data/) fr
 manuals: app-data  ## Download + ingest the extra WSDOT manuals into the Ask corpus (MANUALS="CM TM" to subset)
 	$(PY) pipeline/build_manuals.py
 	$(PY) pipeline/build_ask_corpus.py app/public/data pipeline/manuals-out
+
+index-ask:  ## Embed the Ask corpus into Vectorize for semantic retrieval (needs: wrangler login). Re-run after the corpus changes.
+	CF_ACCOUNT_ID="$$(cd worker && npx wrangler whoami 2>/dev/null | grep -oE '[0-9a-f]{32}' | head -1)" \
+	CF_API_TOKEN="$$(grep oauth_token $$HOME/Library/Preferences/.wrangler/config/default.toml | head -1 | sed 's/.*=[[:space:]]*\"//; s/\".*//')" \
+	node pipeline/embed_corpus.mjs app/public/data/ask-corpus.json pipeline/ask-vectors.ndjson
+	cd worker && npx wrangler vectorize insert dotcompass-ask --file=../pipeline/ask-vectors.ndjson
 
 embeddings: app-data  ## Semantic-search embeddings + self-hosted model (needs: cd app && npm install)
 	cd app && npm run embed

@@ -21,3 +21,6 @@ app/public/ort/
 
 # Generated per-manual Ask chunks
 pipeline/manuals-out/
+
+# Generated Ask-corpus embeddings for Vectorize
+pipeline/ask-vectors.ndjson
