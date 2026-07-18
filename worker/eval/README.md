@@ -47,12 +47,17 @@ BM25-only (16 answerable + 3 out-of-scope, single-manual corpus):
 | Refusal on out-of-scope | 67% (2/3) |
 
 After adding **hybrid retrieval** (BM25 + semantic via Workers AI + Vectorize) over the
-7-manual corpus:
+7-manual corpus, then a **similarity floor** to fix the refusal regression it caused:
 
-| Metric | Result | vs BM25-only |
-|---|---|---|
-| Citation accuracy (end-to-end) | 94% (15/16) | same top-line, but every answerable case is now **high** confidence, and answers cite across multiple manuals |
-| Refusal on out-of-scope | 33% (1/3) | **down** — see the tradeoff below |
+| Metric | BM25-only | Hybrid | Hybrid + floor |
+|---|---|---|---|
+| Citation accuracy (end-to-end) | 94% (15/16) | 94% (15/16) | 94% (15/16) |
+| Refusal on out-of-scope | 67% (2/3) | 33% (1/3) | **75% (3/4)** |
+
+Hybrid made every answerable case high-confidence and cross-manual, but semantic's always-a-
+neighbour behaviour dropped refusal; the similarity floor (drop hits below cosine 0.55)
+restored it without losing any answerable win. The one remaining refusal "miss"
+(`oos-human-remains`) is a debatable label — WSDOT §1-07.16 does cover archaeological finds.
 
 What the runs surfaced, worth tracking:
 
