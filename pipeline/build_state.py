@@ -59,6 +59,7 @@ STATES = {
     "wv": "states.west_virginia:WEST_VIRGINIA",
     "ri": "states.rhode_island:RHODE_ISLAND",
     "md": "states.maryland:MARYLAND",
+    "in": "states.indiana:INDIANA",
 }
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -97,7 +98,7 @@ def build(slug, out_root, allow_uncleared):
             f"{slug}: source not found at {pdf_path} (fetch it into corpus/{slug}/)"
         )
 
-    sections, _, _ = parse_pdf(pdf_path, profile)
+    sections, _, _ = parse_pdf(pdf_path, profile, text_fixup=descriptor.text_fixup)
     sections.sort(key=lambda section: profile.order_key(section["num"]))
 
     out_dir = os.path.join(out_root, slug)

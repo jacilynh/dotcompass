@@ -10,6 +10,7 @@ unless an explicit local-development override is passed. Combined with `corpus/`
 git-ignored, an uncleared state's text can neither be committed nor published by accident.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 # Reuse status, taken from the per-state survey (docs/national/catalog.json). Only PUBLIC
@@ -54,6 +55,9 @@ class StateDescriptor:
     semantic: bool = False  # semantic search (needs precomputed embeddings)
     corpus_label: str = ""  # Home eyebrow; falls back to "<DOT> Standard Specifications"
     demo_section: str | None = None  # worked-example section on Home (history states only)
+    # Optional str->str repair for a broken PDF text layer (parsers/fixups.py), applied
+    # span-by-span at parse time. None for every normally-encoded book.
+    text_fixup: Callable[[str], str] | None = None
 
     def __post_init__(self):
         if self.reuse not in _REUSE_VALUES:

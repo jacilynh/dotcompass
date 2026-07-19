@@ -93,8 +93,14 @@ def detect_bands(doc):
     return band(firsts, top_gap, -99), band(lasts, bot_gap, 99999)
 
 
-def read_lines(doc, header_y, footer_y):
-    """Body lines in reading order, carrying the typography needed to spot a heading."""
+def read_lines(doc, header_y, footer_y, text_fixup=None):
+    """Body lines in reading order, carrying the typography needed to spot a heading.
+
+    `text_fixup` (str -> str, optional) repairs each span's text before it is used, for a
+    state whose PDF has a broken text layer (see parsers/fixups.py); the default leaves text
+    untouched, so it is a no-op for every state that does not pass one.
+    """
+    fix = text_fixup or (lambda t: t)
     lines = []
     for pno in range(doc.page_count):
         page = []
@@ -106,15 +112,15 @@ def read_lines(doc, header_y, footer_y):
                 y = spans[0]["bbox"][1]
                 if abs(y - header_y) < BAND_TOLERANCE or abs(y - footer_y) < BAND_TOLERANCE:
                     continue
-                first = spans[0]
+                texts = [fix(s["text"]).strip() for s in spans]
                 page.append(
                     {
                         "page": pno + 1,
                         "y": y,
-                        "first": first["text"].strip().rstrip("\t"),
-                        "rest": " ".join(s["text"].strip() for s in spans[1:]).strip(),
-                        "full": " ".join(s["text"].strip() for s in spans).strip(),
-                        "style": (first["font"], round(first["size"])),
+                        "first": texts[0].rstrip("\t"),
+                        "rest": " ".join(texts[1:]).strip(),
+                        "full": " ".join(texts).strip(),
+                        "style": (spans[0]["font"], round(spans[0]["size"])),
                     }
                 )
         lines.extend(sorted(page, key=lambda ln: ln["y"]))
@@ -229,11 +235,15 @@ def monotonic(marks, order_key):
     return chain[::-1]
 
 
-def parse(pdf_path, profile):
-    """Parse one edition into a list of sections, driven by `profile`'s numbering scheme."""
+def parse(pdf_path, profile, text_fixup=None):
+    """Parse one edition into a list of sections, driven by `profile`'s numbering scheme.
+
+    `text_fixup` (str -> str, optional) repairs a broken PDF text layer span-by-span; omit it
+    (the default) for every normally-encoded book.
+    """
     doc = fitz.open(pdf_path)
     header_y, footer_y = detect_bands(doc)
-    lines = read_lines(doc, header_y, footer_y)
+    lines = read_lines(doc, header_y, footer_y, text_fixup)
     if not lines:
         raise SystemExit(f"{pdf_path}: no text layer")
 

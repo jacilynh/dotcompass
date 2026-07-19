@@ -22,4 +22,5 @@ export const ALL_STATES: StateConfig[] = [
   {"slug": "wv", "name": "West Virginia", "dot": "WVDOH", "dataBase": "data/wv", "corpusLabel": "WVDOH Standard Specifications Roads and Bridges", "edition": 2023, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
   {"slug": "ri", "name": "Rhode Island", "dot": "RIDOT", "dataBase": "data/ri", "corpusLabel": "RIDOT Standard Specifications (Blue Book)", "edition": 2026, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
   {"slug": "md", "name": "Maryland", "dot": "MDOT SHA", "dataBase": "data/md", "corpusLabel": "MDOT SHA Standard Specifications for Construction and Materials", "edition": 2025, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
+  {"slug": "in", "name": "Indiana", "dot": "INDOT", "dataBase": "data/in", "corpusLabel": "INDOT Standard Specifications", "edition": 2026, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
 ];

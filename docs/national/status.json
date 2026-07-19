@@ -229,8 +229,8 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 2,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "3-built",
+    "capability": "P0",
     "reuse": {
       "status": "all_rights_reserved",
       "dossier": null,
@@ -247,12 +247,10 @@
       "pages": 1328
     },
     "quirks": [
-      "Stage 1: 1,687 sections, monotonic, bands 100-900, ~0% empty/lowercase - clean AASHTO",
-      "single combined book (not per-division as catalog implied)"
+      "STAGE 2 PASS 21/21 after the deshift_indot text_fixup: 1,698 sections (was 1,687). INDOT ships a broken PDF text layer - a scattered ~0.2% of spans use an embedded font offset 29 codepoints too low, so text extracted as control-char gibberish (416.07 Equipment -> control chars). The fixup shifts those runs back +29 span-by-span; 416.07 and ~11 headings recovered, 0 garbled titles remain, no over-correction.",
+      "1.2% empty = INDOT literal Blank reserved-section numbers (910.12 Blank etc.), benign."
     ],
-    "blockers": [
-      "STAGE 2 FAIL (19/20): source PDF has partial font-encoding corruption (Caesar +3 shift on some fonts/pages, e.g. p.464 heading '(TXLSPHQW' decodes to 'Equipment'); corrupted headings/body are unreadable and dropped. Source-PDF pathology, not a parser bug - needs a font-remap/decode step or deferral. aashto_decimal profile is otherwise correct (1,687 sections)."
-    ]
+    "blockers": []
   },
   "me": {
     "state": "Maine",
