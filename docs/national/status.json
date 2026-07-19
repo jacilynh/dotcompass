@@ -286,9 +286,9 @@
     "state": "Mississippi",
     "dot": "MDOT",
     "tier": 1,
-    "cluster": "aashto_decimal",
+    "cluster": "aashto_dash_tbd",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -305,8 +305,12 @@
       "path": "corpus/ms/current.pdf",
       "pages": 1113
     },
-    "quirks": [],
-    "blockers": []
+    "quirks": [
+      "Stage 1: AASHTO-decimal numbers with a DOUBLE-hyphen separator ('101.01--Abbreviations.'); aashto regex needs whitespace so it found only 3 sections"
+    ],
+    "blockers": [
+      "numbering is aashto-decimal but 'NNN.NN--Title' (double-hyphen), NOT plain aashto_decimal; needs a new aashto_dash cluster profile (Opus, guardrail #6)"
+    ]
   },
   "ne": {
     "state": "Nebraska",
@@ -314,7 +318,7 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -331,7 +335,9 @@
       "path": "corpus/ne/current.pdf",
       "pages": 1048
     },
-    "quirks": [],
+    "quirks": [
+      "Stage 1: 1,256 sections, monotonic, bands 100-1000, ~0% empty/lower - clean AASHTO"
+    ],
     "blockers": []
   },
   "oh": {
@@ -340,7 +346,7 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -357,7 +363,9 @@
       "path": "corpus/oh/current.pdf",
       "pages": 892
     },
-    "quirks": [],
+    "quirks": [
+      "Stage 1: 1,544 sections, monotonic, bands 100-700; 62.2% start lowercase - likely a CO-style title/body field split (cosmetic), confirm at Stage 2"
+    ],
     "blockers": []
   },
   "ri": {
@@ -366,7 +374,7 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "all_rights_reserved",
@@ -383,7 +391,9 @@
       "path": "corpus/ri/current.pdf",
       "pages": 951
     },
-    "quirks": [],
+    "quirks": [
+      "Stage 1: 887 sections, monotonic, bands 100-900, 0% empty - clean AASHTO"
+    ],
     "blockers": []
   },
   "sc": {
@@ -392,7 +402,7 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "all_rights_reserved",
@@ -409,7 +419,9 @@
       "path": "corpus/sc/current.pdf",
       "pages": 908
     },
-    "quirks": [],
+    "quirks": [
+      "Stage 1: 2,464 sections, monotonic, bands 100-800; 14.8% empty - likely container subsections, confirm at Stage 2"
+    ],
     "blockers": []
   },
   "tn": {
@@ -472,9 +484,9 @@
     "state": "West Virginia",
     "dot": "WVDOT (WV Division of Highways / WVDOH)",
     "tier": 1,
-    "cluster": "aashto_decimal",
+    "cluster": "aashto_dash_tbd",
     "wave": 3,
-    "stage": "0-source",
+    "stage": "1-parse",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -491,8 +503,12 @@
       "path": "corpus/wv/current.pdf",
       "pages": 1006
     },
-    "quirks": [],
-    "blockers": []
+    "quirks": [
+      "Stage 1: AASHTO-decimal numbers with a single-hyphen separator ('101.1-ABBREVIATIONS:', '102.5.1-Schedule of Items:'); aashto regex needs whitespace so it found only 68 sections"
+    ],
+    "blockers": [
+      "numbering is aashto-decimal but 'NNN.N-Title' (single-hyphen), NOT plain aashto_decimal; needs the new aashto_dash cluster profile (shared with MS)"
+    ]
   },
   "wy": {
     "state": "Wyoming",
