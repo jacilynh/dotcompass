@@ -13,4 +13,6 @@ export const ALL_STATES: StateConfig[] = [
   {"slug": "co", "name": "Colorado", "dot": "CDOT", "dataBase": "data/co", "corpusLabel": "CDOT Standard Specifications for Road and Bridge Construction", "edition": 2025, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
   {"slug": "tn", "name": "Tennessee", "dot": "TDOT", "dataBase": "data/tn", "corpusLabel": "TDOT Standard Specifications for Road and Bridge Construction", "edition": 2026, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
   {"slug": "va", "name": "Virginia", "dot": "VDOT", "dataBase": "data/va", "corpusLabel": "VDOT Road and Bridge Specifications", "edition": 2020, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
+  {"slug": "fl", "name": "Florida", "dot": "FDOT", "dataBase": "data/fl", "corpusLabel": "FDOT Standard Specifications for Road and Bridge Construction", "edition": 2026, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
+  {"slug": "me", "name": "Maine", "dot": "MaineDOT", "dataBase": "data/me", "corpusLabel": "MaineDOT Standard Specifications", "edition": 2026, "history": false, "requirements": false, "ask": false, "semantic": false, "uncleared": true},
 ];
