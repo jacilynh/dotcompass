@@ -170,8 +170,8 @@
     "tier": 1,
     "cluster": "florida_dash",
     "wave": 2,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -188,12 +188,11 @@
       "pages": 1339
     },
     "quirks": [
-      "Stage 1: 6,289 sections on the NEW florida_dash profile, monotonic; N-M.K dash scheme (1-1, 2-2.1, 105-8)",
-      "13.8% empty - likely container subsections (2-2 holds 2-2.1/.2), verify at Stage 2"
+      "STAGE 2 PASS 20/20 after the engine header-band fix: 6,579 sections on florida_dash (+290 recovered); top-of-page headings no longer stripped",
+      "13.8% empty = container subsections (a bare NNN-N label whose prose lives in its NNN-N.K children), benign like Delaware's X.3",
+      "cosmetic: FDOT has no separated footer, so page-footer boilerplate ('Return to Table of Contents') can leak into a section that spans a page break - candidate for a footer-text filter, no content lost"
     ],
-    "blockers": [
-      "Stage 2 FAIL resolved by the engine header-band fix (commit): top-of-page headings no longer stripped, +290 sections recovered (6,289->6,579). Awaiting Stage 2 re-QA to confirm PASS before Stage 3."
-    ]
+    "blockers": []
   },
   "id": {
     "state": "Idaho",
@@ -259,8 +258,8 @@
     "tier": 1,
     "cluster": "section_prefix",
     "wave": 2,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -277,12 +276,11 @@
       "pages": 944
     },
     "quirks": [
-      "Stage 1: 146 sections on the NEW section_prefix profile, monotonic",
-      "24.7% empty to diagnose at Stage 2 (section-level; some sections may hold subsection-only content or a restarted federal series)"
+      "STAGE 2 PASS 20/20 after the engine header-band fix: 164 sections on section_prefix (+18 recovered); SECTION 613 (+content) now captured",
+      "22.6% empty = 'Reserved'/'Removed'/'Vacant' placeholder sections MaineDOT holds with no content by design (verified deterministically), benign - not text loss",
+      "Appendix A federal-provisions supplement restarts SECTION numbering at 1; the monotonic filter correctly excludes that restarted series"
     ],
-    "blockers": [
-      "Stage 2 FAIL (p.612) resolved by the engine header-band fix: +18 sections recovered (146->164), SECTION 613 now captured. Awaiting Stage 2 re-QA; also re-check the empty-rate quirk."
-    ]
+    "blockers": []
   },
   "ms": {
     "state": "Mississippi",
