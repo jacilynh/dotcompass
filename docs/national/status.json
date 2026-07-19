@@ -287,8 +287,8 @@
     "dot": "MDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -298,10 +298,12 @@
     "live": false,
     "source": {
       "url": "https://mdot.ms.gov/documents/Construction/Specifications/2017%20Standard%20Specifications.pdf",
-      "edition": "2017 Edition (Mississippi Standard Specifications for Road and Bridge Construction) \u2014 approved and adopted by the Mississippi Transportation Commission on November 8, 2016; still the current controlling edition as of 2026 (referenced in 2023\u20132025 MDOT bid proposals/special provisions), supplemented on individual contracts by Special Provisions and Interim Specifications rather than a full re-issue.",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2017",
+      "sha256": "e855a7a63d3181f4193f2639c80570f154331a225914e8543c98cfaf924f55e1",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/ms/current.pdf",
+      "pages": 1113
     },
     "quirks": [],
     "blockers": []
@@ -311,8 +313,8 @@
     "dot": "NDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -322,10 +324,12 @@
     "live": false,
     "source": {
       "url": "https://dot.nebraska.gov/media/g4qp4y0d/2017-specbook.pdf",
-      "edition": "2017 Edition (still current as of July 2026 \u2014 9 years without a full revision; amended via supplemental specifications/special provisions)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2017",
+      "sha256": "3ddc080ff7346357f522f6e758ce804d487ee845aad9a9feb63a1d5d61bf54a6",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/ne/current.pdf",
+      "pages": 1048
     },
     "quirks": [],
     "blockers": []
@@ -335,8 +339,8 @@
     "dot": "ODOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -345,11 +349,13 @@
     },
     "live": false,
     "source": {
-      "url": "https://www.dot.state.oh.us/Divisions/ConstructionMgt/OnlineDocs/Pages/2023-Online-Spec-Book.aspx",
-      "edition": "2023 Construction and Material Specifications (C&MS / \"Spec Book\"), effective with supplemental specifications/supplements last updated January 17, 2025 (updates continuing into 2026)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "url": "https://www.dot.state.oh.us/Divisions/ConstructionMgt/OnlineDocs/Specifications/2023_CMS_01162026_for_web_Letter%20size.pdf",
+      "edition": "2023 C&MS (Jan 16 2026 update)",
+      "sha256": "8131e7a1b1239ff0a0cb7f3d69ed3388d197760c89bd1ea7abf4c3dcd22e6607",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/oh/current.pdf",
+      "pages": 892
     },
     "quirks": [],
     "blockers": []
@@ -359,8 +365,8 @@
     "dot": "RIDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "all_rights_reserved",
@@ -370,10 +376,12 @@
     "live": false,
     "source": {
       "url": "https://www.dot.ri.gov/business/bluebook/docs/Blue_Book_02_2026.pdf",
-      "edition": "February 2026 edition (Blue_Book_02_2026.pdf)",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "February 2026",
+      "sha256": "0ef228b155c5659955feea605ae4ee01d94bcea96d3860dc582246447c7b42b6",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/ri/current.pdf",
+      "pages": 951
     },
     "quirks": [],
     "blockers": []
@@ -383,8 +391,8 @@
     "dot": "SCDOT",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "all_rights_reserved",
@@ -394,10 +402,12 @@
     "live": false,
     "source": {
       "url": "https://www.scdot.org/content/dam/scdot-legacy/business/pdf/2025_SCDOT_Standard_Specifications.pdf",
-      "edition": "2025 Standard Specifications for Highway Construction",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2025",
+      "sha256": "b755f067f84e64ab3fb794ca3fabaf3f36e6cbdd7d544b2a36c37da1ebe9b820",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/sc/current.pdf",
+      "pages": 908
     },
     "quirks": [],
     "blockers": []
@@ -463,8 +473,8 @@
     "dot": "WVDOT (WV Division of Highways / WVDOH)",
     "tier": 1,
     "cluster": "aashto_decimal",
-    "wave": null,
-    "stage": "pending",
+    "wave": 3,
+    "stage": "0-source",
     "capability": "none",
     "reuse": {
       "status": "unstated",
@@ -474,10 +484,12 @@
     "live": false,
     "source": {
       "url": "https://transportation.wv.gov/highways/TechnicalSupport/specifications/Documents/2023_Standard_(12-16-22).pdf",
-      "edition": "2023 Standard Specifications Roads and Bridges (dated 12-16-22), updated annually via Supplemental Specifications \u2014 2024, 2025, and a 2026 Supplemental Specifications (effective for projects let after 2/12/2026) are layered on top of the 2023 base book rather than a new full edition being issued",
-      "sha256": null,
-      "verified": false,
-      "format": "single-pdf"
+      "edition": "2023",
+      "sha256": "2cd5740317b05ff9f670c738d4ba38bf5aad24fde8c939266cac96cb10ec3c26",
+      "verified": true,
+      "format": "single-pdf",
+      "path": "corpus/wv/current.pdf",
+      "pages": 1006
     },
     "quirks": [],
     "blockers": []
