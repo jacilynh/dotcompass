@@ -288,8 +288,8 @@
     "tier": 1,
     "cluster": "aashto_dash",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -306,7 +306,7 @@
       "pages": 1113
     },
     "quirks": [
-      "Stage 1: AASHTO-decimal numbers with a DOUBLE-hyphen separator ('101.01--Abbreviations.'); aashto regex needs whitespace so it found only 3 sections"
+      "STAGE 2 PASS 20/20 on the NEW aashto_dash profile: 3,995 sections ('101.01--Title'). 6.6% empty = containers. Quirk: multi-line double-hyphen titles split at the line-wrap (cosmetic, non-lossy)."
     ],
     "blockers": []
   },
@@ -316,8 +316,8 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -334,7 +334,7 @@
       "pages": 1048
     },
     "quirks": [
-      "Stage 1: 1,256 sections, monotonic, bands 100-1000, ~0% empty/lower - clean AASHTO"
+      "STAGE 2 PASS 20/20: 1,256 sections, clean AASHTO. Quirk: Definitions (101.04xx) gives each glossary term its own 4-digit suffix - inflates count, captured faithfully."
     ],
     "blockers": []
   },
@@ -344,8 +344,8 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -362,7 +362,7 @@
       "pages": 892
     },
     "quirks": [
-      "Stage 1: 1,544 sections, monotonic, bands 100-700; 62.2% start lowercase - likely a CO-style title/body field split (cosmetic), confirm at Stage 2"
+      "STAGE 2 PASS 20/20: 1,544 sections. 62.2% lowercase is a benign CO-style title/body field split (title+head reproduces source exactly), NOT the PA text-drop bug."
     ],
     "blockers": []
   },
@@ -392,7 +392,9 @@
     "quirks": [
       "Stage 1: 887 sections, monotonic, bands 100-900, 0% empty - clean AASHTO"
     ],
-    "blockers": []
+    "blockers": [
+      "STAGE 2 FAIL (18/20): RIDOT mixes numeric parts (main body 100-900, 887 sections, parses fine) with ALPHA-PREFIXED Parts L/M/T (Landscaping/Materials/Traffic: 'SECTION M07', 'M07.11', 'M16.04.7', 'L..', 'T..') that the numeric aashto regex cannot read - those whole parts parse at near-zero (confirmed pp.807/854). Real text loss. Needs a letter-prefix-capable profile (shared future work with MD). DEFER."
+    ]
   },
   "sc": {
     "state": "South Carolina",
@@ -400,8 +402,8 @@
     "tier": 1,
     "cluster": "aashto_decimal",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "all_rights_reserved",
       "dossier": null,
@@ -418,7 +420,7 @@
       "pages": 908
     },
     "quirks": [
-      "Stage 1: 2,464 sections, monotonic, bands 100-800; 14.8% empty - likely container subsections, confirm at Stage 2"
+      "STAGE 2 PASS 20/20: 2,464 sections. 14.8% empty = bare container-header sections whose content lives in their child subsections (benign, like DE)."
     ],
     "blockers": []
   },
@@ -484,8 +486,8 @@
     "tier": 1,
     "cluster": "aashto_dash",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "2-qa",
+    "capability": "P0",
     "reuse": {
       "status": "unstated",
       "dossier": null,
@@ -502,7 +504,7 @@
       "pages": 1006
     },
     "quirks": [
-      "Stage 1: AASHTO-decimal numbers with a single-hyphen separator ('101.1-ABBREVIATIONS:', '102.5.1-Schedule of Items:'); aashto regex needs whitespace so it found only 68 sections"
+      "STAGE 2 PASS 20/20 on the NEW aashto_dash profile: 3,465 sections ('101.1-Title'). 9.8% empty = deep container nesting (up to 5 dot-levels, verified). Quirk: occasional colon left on head not title (non-lossy)."
     ],
     "blockers": []
   },
