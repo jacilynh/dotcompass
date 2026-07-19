@@ -8,12 +8,13 @@ new cluster by importing its profile here.
 from parsers.clusters.aashto_dash import AASHTO_DASH
 from parsers.clusters.aashto_decimal import AASHTO
 from parsers.clusters.florida_dash import FLORIDA
+from parsers.clusters.letter_prefix import LETTER_PREFIX
 from parsers.clusters.section_prefix import SECTION_PREFIX
 from parsers.clusters.wsdot_hyphen import WSDOT
 
 PROFILES = {
     profile.cluster: profile
-    for profile in (WSDOT, AASHTO, FLORIDA, SECTION_PREFIX, AASHTO_DASH)
+    for profile in (WSDOT, AASHTO, FLORIDA, SECTION_PREFIX, AASHTO_DASH, LETTER_PREFIX)
 }
 
 

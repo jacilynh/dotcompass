@@ -30,7 +30,7 @@
     "state": "Maryland",
     "dot": "MDOT SHA",
     "tier": 1,
-    "cluster": "letter_prefix_tbd",
+    "cluster": "letter_prefix_reverse_tbd",
     "wave": null,
     "stage": "0-source",
     "capability": "none",
@@ -50,7 +50,7 @@
     },
     "quirks": [],
     "blockers": [
-      "numbering is GP-1.05 letter-prefix (MDOT SHA 'GP-x.xx'), NOT aashto_decimal; catalog mislabeled it. Needs a new cluster profile \u2014 defer to a later wave."
+      "letter_prefix cluster now exists (built for RIDOT) but MDOT SHA is the REVERSE shape: its lettered parts (GP/TC) come BEFORE the numeric technical body, so it needs a lettered-first ordering variant. A plain letter_prefix parse captures MD's 3,095 numeric sections but drops the GP/TC front matter. Defer until the variant is built."
     ]
   },
   "mo": {
@@ -370,10 +370,10 @@
     "state": "Rhode Island",
     "dot": "RIDOT",
     "tier": 1,
-    "cluster": "aashto_decimal",
+    "cluster": "letter_prefix",
     "wave": 3,
-    "stage": "1-parse",
-    "capability": "none",
+    "stage": "3-built",
+    "capability": "P0",
     "reuse": {
       "status": "all_rights_reserved",
       "dossier": null,
@@ -390,11 +390,9 @@
       "pages": 951
     },
     "quirks": [
-      "Stage 1: 887 sections, monotonic, bands 100-900, 0% empty - clean AASHTO"
+      "STAGE 2 PASS 20/20 on the NEW letter_prefix profile: 1,407 sections (was 887). Recovered the alpha-prefixed Parts L/M/T (Landscaping/Materials/Traffic) that the numeric regex dropped - M07.11/M16.04.7 etc. now captured. Lettered parts get synthetic int division bands (L=1012, M=1013, T=1020) so the app needs no change."
     ],
-    "blockers": [
-      "STAGE 2 FAIL (18/20): RIDOT mixes numeric parts (main body 100-900, 887 sections, parses fine) with ALPHA-PREFIXED Parts L/M/T (Landscaping/Materials/Traffic: 'SECTION M07', 'M07.11', 'M16.04.7', 'L..', 'T..') that the numeric aashto regex cannot read - those whole parts parse at near-zero (confirmed pp.807/854). Real text loss. Needs a letter-prefix-capable profile (shared future work with MD). DEFER."
-    ]
+    "blockers": []
   },
   "sc": {
     "state": "South Carolina",

@@ -57,6 +57,7 @@ STATES = {
     "sc": "states.south_carolina:SOUTH_CAROLINA",
     "ms": "states.mississippi:MISSISSIPPI",
     "wv": "states.west_virginia:WEST_VIRGINIA",
+    "ri": "states.rhode_island:RHODE_ISLAND",
 }
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
